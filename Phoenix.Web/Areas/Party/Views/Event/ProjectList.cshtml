@@ -1,0 +1,156 @@
+﻿@using Phoenix.Web.Helpers;
+@using Phoenix.Web.Models.Event;
+@using System.ComponentModel.DataAnnotations;
+
+@model List<Phoenix.Web.Models.Event.ProjectViewModel>
+
+@section Styles {
+    <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+}
+
+@{
+    ViewData["Title"] = "Проекти";
+}
+
+<div class="d-flex align-items-center justify-content-between">
+    <h1>Перелік проектів</h1>
+    <a id="createProject" class="btn btn-danger" data-toggle="modal" data-target="#projectModal">&#10010 Новий проект</a>
+</div>
+<div class="accordion" id="projects">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="card">
+            <div class="card-header" id="card_@i.ToString()">
+                <h2 class="md-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapse_@i.ToString()" aria-expanded="false" aria-controls="collapse_@i.ToString()">
+                        <div class="d-flex justify-content-between">
+                            @Model[i].ProjectName
+                            <span>Дотиків: @Model[i].Events.Count</span>
+                        </div>
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse_@i.ToString()" class="collapse" aria-labelledby="card_@i.ToString()" data-parent="#projects">
+                <div class="card-body">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr class="bg-info text-center">
+                                <th>Тип</th>
+                                <th>Назва</th>
+                                <th>Початок</th>
+                                <th>Завершення</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var evt in Model[i].Events)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayName(evt.EventType.GetAttribute<DisplayAttribute>().Name)</td>
+                                    <td>@evt.EventName</td>
+                                    <td>@Html.ShortDateTime(evt.EventStart)</td>
+                                    <td>@Html.ShortDateTime(evt.EventEnd)</td>
+                                    <td class="text-center">
+                                        <i class="bi bi-pencil" data-toggle="modal" data-target="#projectEventModal"></i>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="projectModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="ProjectName" class="col-4 col-form-label">Назва проекта</label>
+                    <div class="col-8">
+                        <input name="ProjectName" id="ProjectName" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Відмінити</button>
+                <button id="btnCreateProject" type="button" class="btn btn-success">Створити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="projectEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Project Name</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="EventType" class="col-4 col-form-label">Тип захода</label>
+                    <div class="col-8">
+                        <select name="EventType" id="EventType" class="form-control" asp-items="Html.GetEnumSelectList<PROJECT_EVENT_TYPE>()"></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="ProjectEventName" class="col-4 col-form-label">Назва захода</label>
+                    <div class="col-8">
+                        <input name="ProjectEventName" id="ProjectEventName" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="EventStartDate" class="col-4 col-form-label">Початок</label>
+                    <div class="col-8">
+                        <div class="input-group" id="biEventStartDate">
+                            <input id="EventStartDate" name="EventStartDate" type="text" class="form-control" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="EventEndDate" class="col-4 col-form-label">Завершення</label>
+                    <div class="col-8">
+                        <div class="input-group" id="biEventEndDate">
+                            <input type="datetime" name="EventEndDate" id="EventEndDate" class="form-control" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="OrganizationName" class="col-4 col-form-label">Організатор</label>
+                    <div class="col-8">
+                        <select name="OrganizationName" id="OrganizationName" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Відмінити</button>
+                <button id="btnCreateEvent" type="button" class="btn btn-success">Створити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/lib/moment.js/moment-with-locales.min.js"></script>
+    <script src="~/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#biEventStartDate').datetimepicker();
+            $('#biEventEndDate').datetimepicker();
+        });
+    </script>
+}

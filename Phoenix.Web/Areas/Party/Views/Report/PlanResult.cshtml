@@ -1,0 +1,118 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Report.CommunityPlansViewModel>
+
+@{
+    ViewData["Title"] = "Звіт щодо виконання плану";
+}
+
+<h1>Звіт щодо виконання плану</h1>
+<h6>* колонка "@Html.DisplayNameFor(model => model.WeekCount)" - період з @Html.ShortDate((DateTime)ViewData["StartDate"]) по @Html.ShortDate((DateTime)ViewData["EndDate"])</h6>
+<hr />
+<table id="tableReport" class="table tabel-sm table-bordered table-fixed">
+    @*<colgroup>
+        <col class="col-md" />
+        <col class="col-md" />
+        <col class="col-md" />
+        <col class="col-md" />
+        <col class="col-md" />
+        <col class="col-md" />
+        <col class="col-md" />
+    </colgroup>*@
+    <thead>
+        <tr class="text-center" style="background-color: #fce660">
+            <th>
+                @Html.DisplayNameFor(model => model.RegionName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CommunityName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WeekCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlanCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlanPercent)
+            </th>
+        </tr>
+        
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr style="@item.CssStyle" data-group="@item.Order" data-group-toggle="expanded">
+            <td>
+                @Html.DisplayFor(modelItem => item.RegionName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CommunityName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td class="text-right">
+                @string.Format("{0:# ##0}", item.WeekCount)
+            </td>
+            <td class="text-right">
+                @string.Format("{0:# ##0}", item.TotalCount)
+            </td>
+            <td class="text-right">
+                @string.Format("{0:# ##0}", item.PlanCount)
+            </td>
+            <td class="text-right">
+                @string.Format("{0:0.00} %", item.PlanPercent)
+            </td>
+        </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr style="background-color: #fce660">
+            @{
+                var totalInfo = ViewData["Total"] as Phoenix.Web.Models.Report.CommunityPlansViewModel;
+            }
+            <th colspan="3">@totalInfo.RegionName</th>
+            <th class="text-right">@string.Format("{0:# ##0}", totalInfo.WeekCount)</th>
+            <th class="text-right">@string.Format("{0:# ##0}", totalInfo.TotalCount)</th>
+            <th class="text-right">@string.Format("{0:# ##0}", totalInfo.PlanCount)</th>
+            <th class="text-right">@string.Format("{0:0.00} %", totalInfo.PlanPercent)</th>
+        </tr>
+    </tfoot>
+</table>
+
+@section scripts
+{
+<script>
+    $('tr[data-group]').on('click', function (e) {
+        var order = parseInt($(this).attr('data-group'));
+        var group = $(this).children().eq(order).html();
+        var toggle = $(this).attr('data-group-toggle');
+        var currentRow = $(this);
+
+        if (toggle == "expanded") {
+            $(currentRow).attr('data-group-toggle', 'collapse');
+            $('#tableReport tbody tr').each(function (idx,e) {
+                if ($(e).children().eq(order).html() == group && $(e).attr('data-group-toggle') != "collapse") {
+                    $(e).hide();
+                }
+            });
+            $(currentRow).attr('data-group-toggle', "collapsed");
+        }
+
+        if (toggle == "collapsed") {
+            $(currentRow).attr('data-group-toggle', 'expand');
+            $('#tableReport tbody tr').each(function (idx,e) {
+                if ($(e).children().eq(order).html() == group && $(e).attr('data-group-toggle') != "expand") {
+                    $(this).show();
+                }
+            });
+            $(currentRow).attr('data-group-toggle', "expanded");
+        }
+    });
+</script>
+}

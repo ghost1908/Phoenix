@@ -1,0 +1,105 @@
+﻿@model Phoenix.Web.Models.Election.Online.OpenViewModel
+
+<table class="table table-bordered table-sm table-hover">
+    <thead class="bg-info">
+        <tr>
+            <th rowspan="2">Територия</th>
+            <th colspan="4">Участки</th>
+            <th rowspan="2">Кол-во избирателей</th>
+            <th colspan="@Model.MaxCouncils">Количество бюллетеней</th>
+        </tr>
+        <tr>
+            <th>Всего</th>
+            <th>Открыто</th>
+            <th>Осталось открыть</th>
+            <th>Не открыто</th>
+            @foreach (var cncl in Model.Councils)
+            {
+                <th>@cncl.CouncilTypeName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+        <tr data-action="expand" data-id="@item.TerritoryName" style="font-weight: 800;">
+            <td>@item.TerritoryName</td>
+            <td class="text-center">@item.TotalPrecincts</td>
+            <td class="text-center">@item.TotalOpened</td>
+            <td class="text-center">@(item.TotalPrecincts - item.TotalOpened - item.TotalNotOpened)</td>
+            <td class="text-center">@item.TotalNotOpened</td>
+            <td class="numeric">@string.Format("{0:# ### ##0}", item.TotalVoters)</td>
+            @foreach (var cncl in Model.Councils)
+            {
+                <td class="numeric">
+                    @string.Format("{0:# ### ##0}", item.Councils.Where(p => p.CouncilTypeOrder == cncl.CouncilTypeOrder).Select(s => s.BulletinsReceived).FirstOrDefault())
+                </td>
+            }
+        </tr>
+            @if (item.Children != null && item.Children.Count > 0)
+            {
+                foreach (var child in item.Children)
+                {
+    <tr data-action="expand" data-id="@child.TerritoryName" data-parent-id="@item.TerritoryName" style="font-weight: 600;">
+        <td>@child.TerritoryName</td>
+        <td class="text-center">@child.TotalPrecincts</td>
+        <td class="text-center">@child.TotalOpened</td>
+        <td class="text-center">@(child.TotalPrecincts - child.TotalOpened - child.TotalNotOpened)</td>
+        <td class="text-center">@child.TotalNotOpened</td>
+        <td class="numeric">@string.Format("{0:# ### ##0}", child.TotalVoters)</td>
+        @foreach (var cncl in Model.Councils)
+        {
+            <td class="numeric">
+                @string.Format("{0:# ### ##0}", child.Councils.Where(p => p.CouncilTypeOrder == cncl.CouncilTypeOrder).Select(s => s.BulletinsReceived).FirstOrDefault())
+            </td>
+        }
+    </tr>
+                    @if (child.Children != null && child.Children.Count > 0)
+                    {
+                        foreach (var childChild in child.Children)
+                        {
+    <tr data-parent-id="@child.TerritoryName">
+        <td>@childChild.TerritoryName</td>
+        <td class="text-center">@childChild.TotalPrecincts</td>
+        <td class="text-center">@childChild.TotalOpened</td>
+        <td class="text-center">@(childChild.TotalPrecincts - childChild.TotalOpened - childChild.TotalNotOpened)</td>
+        <td class="text-center">@childChild.TotalNotOpened</td>
+        <td class="numeric">@string.Format("{0:# ### ##0}", childChild.TotalVoters)</td>
+        @foreach (var cncl in Model.Councils)
+        {
+            <td class="numeric">
+                @string.Format("{0:# ### ##0}", childChild.Councils.Where(p => p.CouncilTypeOrder == cncl.CouncilTypeOrder).Select(s => s.BulletinsReceived).FirstOrDefault())
+            </td>
+        }
+    </tr>
+                        }
+                    }
+                }
+
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    $('.table-hover').find('tr[data-id]').on('click', function () {
+        if ($(this).data('action') == "expand") {
+            $(this).data('action', "collapse");
+            $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+                $('.table-hover').find('tr[data-parent-id="' + $(element).data('id') + '"]').each(function (idx, child) {
+                    $(child).hide();
+                });
+                $(element).hide();
+                $(element).data('action', "collapse");
+            });
+        }
+        else {
+            $(this).data('action', "expand");
+            $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+                $(element).show();
+            });
+        }
+    });
+
+    $('tr[data-action][data-parent-id*=" "]').trigger('click');
+</script>

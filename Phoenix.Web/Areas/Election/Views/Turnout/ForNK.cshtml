@@ -1,0 +1,53 @@
+﻿@model Phoenix.Web.Models.Election.TurnoutListViewModel
+
+@{
+    ViewData["Title"] = "Явка на участках";
+}
+
+<h2>Явка на избирательных участках</h2>
+
+<table class="table table-sm table-bordered">
+    <thead class="text-center">
+        <tr>
+            <th>Округ</th>
+            <th>Теріторія</th>
+            <th>Громада</th>
+            <th>Дільниця</th>
+            <th>Кількість виборців на 08:00</th>
+            @for (int i = 0; i < Model.TurnoutTimesCount; i++)
+            {
+                <th>
+                    @string.Format("{0:00}:{1:00}", Model.TurnoutTimes[i].Hours, Model.TurnoutTimes[i].Minutes)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.PrecinctsTurnout)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DistrictNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RegionName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CommunityName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrecinctNumber)
+            </td>
+            <td class="text-right">
+                @string.Format("{0:# ### ##0}", item.Voters)
+            </td>
+            @foreach (var value in item.TurnoutValues)
+            {
+                <td class="text-right">
+                    @string.Format("{0:# ### ##0}", value.Value)
+                </td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>

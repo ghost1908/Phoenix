@@ -1,0 +1,1790 @@
+﻿@using Phoenix.Web.Models.Event;
+@using Phoenix.Web.Models.Person;
+@using Microsoft.AspNetCore.Session;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Identity; 
+
+@model PersonViewModel;
+
+@section Styles {
+    <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="~/css/person.css" />
+}
+
+@{
+    ViewData["Title"] = "Редагування анкети";
+}
+
+<div id="alert-container"></div>
+
+<ul class="nav nav-pills nav-fill" id="tabPersonMenu" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="profile-tab" data-toggle="pill" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Анкета</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="profile-info-tab" data-toggle="pill" href="#profile-info" role="tab" aria-controls="profile-info" aria-selected="true">Додаткова інформація</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="party-tab" data-toggle="pill" href="#party" role="tab" aria-controls="party" aria-selected="false">Партія</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="events-tab" data-toggle="pill" href="#events" role="tab" aria-controls="events" aria-selected="false">Заходи</a>
+    </li>
+</ul>
+
+<input type="hidden" asp-for="@Model.PersonId" />
+
+<div class="tab-content" id="tabContent">
+    <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        <hr />
+        <div class="row">
+            <div class="col">
+                <div class="form-group row">
+                    <label for="profileLastName" class="col-sm-2 col-form-label">Прізвище</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profileLastName" name="LastName" asp-for="@Model.LastName" placeholder="обов'язкове поле" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileFirstName" class="col-sm-2 col-form-label">Ім'я</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profileFirstName" name="FirstName" asp-for="@Model.FirstName" placeholder="обов'язкове поле" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileMiddleName" class="col-sm-2 col-form-label">По батькові</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profileMiddleName" name="MiddleName" asp-for="@Model.MiddleName" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileGender" class="col-sm-2 col-form-label">Стать</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="profileGender" name="Gender" asp-items="Html.GetEnumSelectList<GENDER>()" asp-for="@Model.Gender"></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileBirthDate" class="col-sm-2 col-form-label">Дата народження</label>
+                    <div class="col-sm-10">
+                        <input type="date" class="form-control" id="profileBirthDate" name="BirthDate" asp-for="@Model.BirthDate" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileAddressRegistration" class="col-sm-2 col-form-label">Адреса реєстрації</label>
+                    <div class="col-sm-10">
+                        <input type="hidden" asp-for="@Model.AddressRegistration.ID" />
+                        <input type="hidden" id="AddressRegistration_StreetID" value="" />
+                        <input type="hidden" id="AddressRegistration_Building" value="" />
+                        <input type="hidden" asp-for="@Model.AddressRegistration.ApartmentNumber" />
+                        <input type="text" class="form-control" id="profileAddressRegistration" name="AddressRegistration" value="@Model.AddressRegistration"
+                               data-toggle="modal" data-target="#profileAddressModal" placeholder="обов'язкове поле" data-living="true" readonly />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileAddressLiving" class="col-sm-2 col-form-label">Адреса проживання</label>
+                    <div class="col-sm-10">
+                        <input type="hidden" asp-for="@Model.AddressLiving.ID" />
+                        <input type="hidden" id="AddressLiving_StreetID" value="" />
+                        <input type="hidden" id="AddressBuilding_Building" value="" />
+                        <input type="hidden" asp-for="@Model.AddressLiving.ApartmentNumber" />
+                        <input type="text" class="form-control" id="profileAddressLiving" name="AddressLiving" value="@Model.AddressLiving"
+                               data-toggle="modal" data-target="#profileAddressModal" readonly />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profilePhone" class="col-sm-2 col-form-label">Телефон</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="profilePhone" name="Phone" asp-for="@Model.Phone" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="hasTelegram" class="col-form-label">Telegram</label>
+                        <input class="input-check-switch" type="checkbox" id="hasTelegram" name="HasTelegram" asp-for="@Model.HasTelegram" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="hasViber" class="col-form-label">Viber</label>
+                        <input class="input-check-switch" type="checkbox" id="hasViber" name="HasViber" asp-for="@Model.HasViber" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="hasWhatsapp" class="col-form-label">WhatsApp</label>
+                        <input class="input-check-switch" type="checkbox" id="hasWhatsapp" name="HasWhatsapp" asp-for="@Model.HasWhatsapp" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileEmail" class="col-sm-2 col-form-label">E-Mail</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="profileEmail" name="Email" asp-for="@Model.Email" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="hasFacebook" class="col-form-label">Facebook</label>
+                        <input class="input-check-switch" type="checkbox" id="hasFacebook" name="HasFacebook" asp-for="@Model.HasFacebook" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="hasInstagram" class="col-form-label">Instagram</label>
+                        <input class="input-check-switch" type="checkbox" id="hasInstagram" name="HasInstagram" asp-for="@Model.HasInstagram" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileLastFormStatus" class="col-sm-2 col-form-label">Статус анкети</label>
+                    <div class="col-sm-6">
+                        <input type="text" readonly class="form-control-plaintext" id="profileLastFormStatus" value="@Model.LastFormStatusName" />
+                    </div>
+                    <div class="col-sm-4">
+                        <button id="btnFormStatuses" type="button" class="btn btn-primary"
+                                data-toggle="modal" data-target="#profileFormStatusModal">Переглянути статуси</button>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileIsDeleted" class="col-sm-2 col-form-label">Видалити анкету</label>
+                    <div class="col-sm-10">
+                        <input class="input-check-switch" type="checkbox" id="profileIsDeleted" name="IsDeleted" asp-for="@Model.IsDeleted" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="profile-info" role="tabpanel" aria-labelledby="profile-info-tab">
+        <hr />
+        <div class="row">
+            <div class="col">
+                <div class="form-group row">
+                    <label for="profilePassportSeries" class="col-sm-2 col-form-label">Серія</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profilePassportSeries" name="PersonInfo.Passport.Series" asp-for="@Model.PersonInfo.Passport.Series" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profilePassportNumber" class="col-sm-2 col-form-label">Номер</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profilePassportNumber" name="PersonInfo.Passport.Number" asp-for="@Model.PersonInfo.Passport.Number" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profilePassportIssue" class="col-sm-2 col-form-label">Ким виданий</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profilePassportIssue" name="PersonInfo.Passport.Issue" asp-for="@Model.PersonInfo.Passport.Issue" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="profileTaxNumber" class="col-sm-2 col-form-label">ІПН</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="profileTaxNumber" name="PersonInfo.TaxNumber" asp-for="@Model.PersonInfo.TaxNumber" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="party" role="tabpanel" aria-labelledby="party-tab">
+        <hr />
+        <div class="form-group row">
+            <label for="profileIsEmployee" class="col-sm-3 col-form-label">Співробітник</label>
+            <div class="col-sm-2">
+                <input class="input-check-switch" type="checkbox" id="profileIsEmployee" name="IsEmployee" asp-for="@Model.IsEmployee" />
+            </div>
+        </div>
+        <table id="tableEmployee" class="table table-sm table-bordered table-editable" style="display:none;">
+            <thead>
+                <tr class="text-center bg-info">
+                    <th>Організація</th>
+                    <th>Посада</th>
+                    <th>Дата прийому</th>
+                    <th>Дата звільнення</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var position in Model.PersonPositions)
+                {
+                    <tr data-id="@position.Id" data-action="@((int)position.Action)">
+                        <td data-id="@position.OrganizationId">@position.OrganizationName</td>
+                        <td data-id="@position.PositionId">@position.PositionName</td>
+                        <td class="text-center">@Html.DateNull(position.AppointDate)</td>
+                        <td class="text-center">@Html.DateNull(position.DismissDate)</td>
+                        <td><a id="#btnEditPosition" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#partyEmployeeModal">Редагувати</a></td>
+                    </tr>
+                }
+                <tr>
+                    <td>
+                        <select name="OrganizationNames" id="OrganizationNames" class="form-control form-control-sm" data-id=""></select>
+                    </td>
+                    <td>
+                        <select name="PositionNames" id="PositionNames" class="form-control form-control-sm" data-id=""></select>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input type="checkbox" id="employeeIsAppoint" />
+                                </div>
+                            </div>
+                            <input type="date" class="form-control form-control-sm" id="employeeAppointDate" disabled />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input type="checkbox" id="employeeIsDismiss" />
+                                </div>
+                            </div>
+                            <input type="date" class="form-control form-control-sm" id="employeeDismissDate" disabled />
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-block btn-success" id="btnAddEmployee">Додати</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+        <div class="form-group row">
+            <label for="profileIsPartyMember" class="col-sm-3 col-form-label">Член партії</label>
+            <div class="col-sm-2">
+                <input type="checkbox" class="input-check-switch" id="profileIsPartyMember" name="IsPartyMember" asp-for="@Model.IsPartyMember" />
+            </div>
+            <partial name="_PersonParty" model="@Model.PersonParties" />
+        </div>
+        <hr />
+        <div class="form-group row">
+            <label for="profileIsDeputy" class="col-sm-3 col-form-label">Депутат</label>
+            <div class="col-sm-2">
+                <input type="checkbox" class="input-check-switch" id="profileIsDeputy" name="IsDeputy" asp-for="@Model.IsDeputy" />
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
+        <hr />
+        @*<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#personEventModal">Додати</button>*@
+        <table id="tableEvent" class="table table-sm table-bordered table-editable">
+            <thead>
+                <tr class="text-center bg-info">
+                    <th>Проект</th>
+                    <th>Подія</th>
+                    <th>Тип події</th>
+                    <th>Дата події</th>
+                    <th>Статус</th>
+                    <th>Коментар</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var evt in Model.PersonEvents)
+                {
+                <tr data-id="@evt.Id" data-action="@((int)evt.Action)" data-username="@evt.UserName" data-create="@Html.ShortDateTime(evt.EventCreate)">
+                    <td data-id="@evt.ProjectId">@evt.ProjectName</td>
+                    <td data-id="@evt.EventId">@evt.EventName</td>
+                    <td class="text-center" data-id="@((int)evt.EventType)">@evt.DisplayEventType()</td>
+                    <td class="text-center">@Html.ShortDateTime(evt.EventDate)</td>
+                    <td class="text-center" data-id="@((int)evt.PersonStatus)">@evt.DisplayPersonStatus()</td>
+                    <td>@evt.EventComment</td>
+                    <td><a id="#btnEditPersonEvent" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#personEventModal">Редагувати</a></td>
+                </tr>
+                }
+                <tr>
+                    <td>
+                        <select name="ProjectNames" id="ProjectNames" class="form-control form-control-sm" data-id=""></select>
+                    </td>
+                    <td>
+                        <select name="EventNames" id="EventNames" class="form-control form-control-sm" data-id=""></select>
+                    </td>
+                    <td>
+                        <select name="EventTypeNames" id="EventTypeNames" class="form-control form-control-sm d-none" asp-items="Html.GetEnumSelectList<PROJECT_EVENT_TYPE>()" data-id="" disabled></select>    
+                    </td>
+                    <td>
+                        <div class="input-group input-group-sm" id="biEventDate">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                            <input id="EventDate" type="text" class="form-control form-control-sm" />
+                        </div>
+                        @*<input id="EventDate" type="date" value='@DateTime.Today.ToString("yyyy-MM-dd")' class="form-control form-control-sm"  />*@
+                    </td>
+                    <td>
+                        <select name="PersonStatusNames" id="PersonStatusNames" class="form-control form-control-sm" asp-items="Html.GetEnumSelectList<PERSON_EVENT_STATUS>()" data-id=""></select>
+                    </td>
+                    <td>
+                        <input id="NewPersonEventComment" type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-block btn-success" id="btnAddPersonEvent">Додати</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<button id="btnCancel" type="button" class="btn btn-danger">Відмінити</button>
+<button id="btnAccept" type="button" class="btn btn-success">Зберегти</button>
+
+<div class="modal fade" id="profileAddressModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                @*<partial name="_AddressPartial" model="@Model.AddressRegistration" />*@
+                <input type="hidden" id="callerName" />
+                <input type="hidden" id="addressId" />
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group row">
+                            <label for="AreaNames" class="col-sm-2 col-form-label">Область</label>
+                            <div class="col-sm-10">
+                                <select name="AreaNames" id="AreaNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="RegionNames" class="col-sm-2 col-form-label">Район</label>
+                            <div class="col-sm-10">
+                                <select name="RegionNames" id="RegionNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="CommunityNames" class="col-sm-2 col-form-label">Громада</label>
+                            <div class="col-sm-10">
+                                <select name="CommunityNames" id="CommunityNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="CityNames" class="col-sm-2 col-form-label">Місто</label>
+                            <div class="col-sm-10">
+                                <select name="CityNames" id="CityNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="StreetNames" class="col-sm-2 col-form-label">Вулиця</label>
+                            <div class="col-sm-10">
+                                <select name="StreetNames" id="StreetNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="BuildingNumber" class="col-sm-2 col-form-label">Дім</label>
+                            <div class="col-sm-10">
+                                <input name="BuildingNumber" id="BuildingNumber" class="form-control" style="text-transform: uppercase;" />
+                            </div>
+                        </div>
+                        @*<div class="form-group row">
+                                <label for="BuildingIssue" class="col-sm-2 col-form-label">Описание</label>
+                                <div class="col-sm-10">
+                                    <input name="BuildingIssue" id="BuildingIssue" class="form-control" />
+                                </div>
+                            </div>*@
+                        <div class="form-group row">
+                            <label for="ApartmentNumber" class="col-sm-2 col-form-label">Квартира</label>
+                            <div class="col-sm-10">
+                                <input name="ApartmentNumber" id="ApartmentNumber" class="form-control" style="text-transform: uppercase;" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="form-check flex-fill d-none" id="showLiving">
+                    <input class="form-check-input" type="checkbox" value="" id="sameLiving" />
+                    <label class="form-check-label" for="sameLiving">
+                        Адреса проживання така сама
+                    </label>
+                </div>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Відмінити</button>
+                <button id="btnAddressAccept" type="button" class="btn btn-success">Застосувати</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="profileFormStatusModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="tableFormStatuses" class="table table-sm table-bordered table-editable">
+                    <thead>
+                        <tr class="text-center bg-info">
+                            <th>Статус</th>
+                            <th>Дата</th>
+                            <th>Автор</th>
+                            <th>Коментар</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.FormStatuses)
+                        {
+                            <tr data-id="@item.Id" data-action="@((int)item.Action)">
+                                <td data-id="@item.FormStatus">@item.FormStatusName</td>
+                                <td class="text-center">@Html.LongDateTime(item.CreateDate)</td>
+                                <td data-id="@item.UserId" class="text-center">@item.UserName</td>
+                                <td>@item.Comment</td>
+                                <td class="text-center fs-2">
+                                    <i data-toggle="editformstatus" class="bi bi-pencil" title="Редагувати"></i>
+                                    <div class="d-none">
+                                        <i data-toggle="acceptformstatus" class="bi bi-check-circle text-primary" title="Зберегти"></i>
+                                        <i data-toggle="deleteformstatus" class="bi bi-dash-circle text-danger" title="Видалити"></i>
+                                        <i data-toggle="cancelformstatus" class="bi bi-x-circle" title="Відмінити"></i>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td>
+                                <select id="EditFormStatusNames" class="form-control form-control-sm" asp-items="Html.GetEnumSelectList<PERSON_FORM_STATUS>()" data-id=""></select>
+                            </td>
+                            <td class="text-center">
+                                <span title="Після збереження анкети, дата та час може змінитися">@Html.LongDateTime(DateTime.Now)</span>
+                            </td>
+                            <td data-id="@ViewBag.UserId" class="text-center">
+                                @(User.FindFirst("DisplayName")?.Value ?? @User.Identity.Name)
+                            </td>
+                            <td>
+                                <textarea class="form-control form-control-sm" rows="2"></textarea>
+                            </td>
+                            <td class="text-center fs-2">
+                                <i id="btnAddFormStatus" class="bi bi-plus-circle"></i>
+                            </td>
+                        </tr>
+                        <tr class="d-none" data-id="newrow" data-action="0">
+                            <td data-id=""></td>
+                            <td class="text-center"></td>
+                            <td data-id="" class="text-center"></td>
+                            <td></td>
+                            <td class="text-center fs-2">
+                                <i data-toggle="editformstatus" class="bi bi-pencil" title="Редагувати"></i>
+                                <div class="d-none">
+                                    <i data-toggle="acceptformstatus" class="bi bi-check-circle text-primary" title="Зберегти"></i>
+                                    <i data-toggle="deleteformstatus" class="bi bi-dash-circle text-danger" title="Видалити"></i>
+                                    <i data-toggle="cancelformstatus" class="bi bi-x-circle" title="Відмінити"></i>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="personEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <input id="personEventAuthor" type="text" readonly class="form-control-plaintext" />
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="personEventId" />
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group row">
+                            <label for="EditProjectNames" class="col-sm-2 col-form-label">Проект</label>
+                            <div class="col-sm-10">
+                                <select name="EditProjectNames" id="EditProjectNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditEventNames" class="col-sm-2 col-form-label">Подія</label>
+                            <div class="col-sm-10">
+                                <select name="EditEventNames" id="EditEventNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditEventTypeNames" class="col-sm-2 col-form-label">Тип події</label>
+                            <div class="col-sm-10">
+                                <select name="EditEventTypeNames" id="EditEventTypeNames" class="form-control d-none" asp-items="Html.GetEnumSelectList<PROJECT_EVENT_TYPE>()" data-id="" disabled></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditEventDate" class="col-sm-2 col-form-label">Дата події</label>
+                            <div class="col-sm-10">
+                                <div class="input-group" id="biEditEventDate">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-calendar-date"></i>
+                                        </span>
+                                    </div>
+                                    <input id="EditEventDate" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditPersonStatusNames" class="col-sm-2 col-form-label">Статус</label>
+                            <div class="col-sm-10">
+                                <select id="EditPersonStatusNames" name="EditPersonStatusNames" asp-items="Html.GetEnumSelectList<PERSON_EVENT_STATUS>()" class="form-control" data-id="">
+                                    <option selected="selected" value="">Оберіть статус</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditPersonEventComment" class="col-sm-2 col-form-label">Коментар</label>
+                            <div class="col-sm-10">
+                                <textarea id="EditPersonEventComment" class="form-control form-control-sm" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="flex-fill">
+                    <button id="btnPersonEventDelete" type="button" class="btn btn-danger">Видалити</button>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Відмінити</button>
+                <button id="btnPersonEventEdit" type="button" class="btn btn-success">Застосувати</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="personDublicatesModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Знайдені дублікати</h4>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">ОК</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="partyEmployeeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <input type="hidden" id="pioId" />
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group row">
+                            <label for="EditOrganizationNames" class="col-sm-2 col-form-label">Організація</label>
+                            <div class="col-sm-10">
+                                <select name="EditOrganizationNames" id="EditOrganizationNames" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditOrganizationPositions" class="col-sm-2 col-form-label">Посада</label>
+                            <div class="col-sm-10">
+                                <select name="EditOrganizationPositions" id="EditOrganizationPositions" class="form-control" data-id=""></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="EditEmployeeAppointDate" class="col-sm-2 col-form-label">Дата прийому</label>
+                            <div class="col-sm-10 input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" id="EditEmployeeIsAppoint" />
+                                    </div>
+                                </div>
+                                <input type="date" class="form-control" id="EditEmployeeAppointDate" disabled />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="CityNames" class="col-sm-2 col-form-label">Дата звільнення</label>
+                            <div class="col-sm-10 input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" id="EditEmployeeIsDismiss" />
+                                    </div>
+                                </div>
+                                <input type="date" class="form-control" id="EditEmployeeDismissDate" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="flex-fill">
+                    <button id="btnEmployeePositionDelete" type="button" class="btn btn-danger">Видалити</button>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Відмінити</button>
+                <button id="btnEmployeePositionEdit" type="button" class="btn btn-success">Застосувати</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/phone-validation.js"></script>
+    <script src="~/js/person-validation.js"></script>
+    <script src="~/lib/moment.js/moment-with-locales.min.js"></script>
+    <script src="~/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/person-party.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder().withUrl("/hub/person").build();
+
+        var needFindDublicates = 0;
+        var trEditEmployee;
+        var trEditEvent;
+        //var trEditFormStatus;
+
+        function FindDublicates() {
+            if (needFindDublicates >= 2) {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("FindDublicates")',
+                    data: { lastName: $('#profileLastName').val(), firstName: $('#profileFirstName').val() },
+                    async: true,
+                    success: function (data) {
+                        if (data == undefined || data.length < 2)
+                            return;
+                        var modal = $('#personDublicatesModal > div.modal-dialog > div.modal-content > div.modal-body');
+                        for (const item of data) {
+                            modal.append('<div class="card"><div class="card-body"><h5 class="card-title">' + item.lastName.concat(' ', item.firstName, ' ', item.middleName,' (дата народження: ',item.birthDate,')')+'</h5><p class="card-text">'+item.addressRegistration + '</p></div></div>');
+                        }
+                        $('#personDublicatesModal').modal('show');
+                    }
+                });
+            }
+        }
+
+        function GetStreets() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetStreetInCity")',
+                data: { cityID: $('#CityNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#StreetNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає вулиць', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть вулицю', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.streetName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetCities() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCityInCommunity")',
+                data: { cmnID: $('#CommunityNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#CityNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає міст', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть місто', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.cityName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetCommunities() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCommunityInRegion")',
+                data: { riaID: $('#RegionNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#CommunityNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає громад', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть громаду', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.communityName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetRegions() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetRegionInArea")',
+                data: { areaID: $('#AreaNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#RegionNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає районів', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть район', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.regionName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetAreas() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAreas")',
+            }).done(function (data) {
+                var selectItem = $('#AreaNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає областей', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть область', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.areaName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetOrganizations(item) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetOrganizations")',
+            }).done(function (data) {
+                //var selectItem = $('#OrganizationNames');
+                var selectItem = item;
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає організацій', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть організацію', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.organizationName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetPositions(item) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPositions")',
+            }).done(function (data) {
+                var selectItem = item;
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає посад', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть посаду', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.positionName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetProjects(item) {
+            var accessMask = 0;
+            accessMask |= (+$('#profileIsDeputy').is(':checked') << 4);
+            accessMask |= (+$('#profileIsPartyMember').is(':checked') << 3);
+            accessMask |= (+$('#profileIsEmployee').is(':checked') << 2);
+            if (accessMask == 0)
+                accessMask |= 2;
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetProjects")',
+                data: { personMask: accessMask },
+                error: function (e) { },
+                success: function (data) {
+                    var selectItem = item;
+                    var selectItemId = selectItem.attr('data-id');
+
+                    if (selectItem.prop) {
+                        var options = selectItem.prop('options');
+                    }
+                    else {
+                        var options = selectItem.attr('options');
+                    }
+                    $('option', selectItem).remove();
+
+                    if (data.length == 0) {
+                        options[0] = new Option('Немає проектів', '');
+                        $(selectItem).attr('data-id', "");
+                        selectItem[0].selectIndex = 0;
+                    }
+                    else {
+                        var disabledOption = new Option('Виберіть проект', '');
+                        disabledOption.setAttribute('disabled', 'true');
+                        options[0] = disabledOption;
+
+                        data.forEach(function (item) {
+                            options[options.length] = new Option(item.projectName, item.projectId);
+                        });
+
+                        selectItem.val(selectItemId);
+                    }
+
+                    selectItem.trigger('change');
+                }
+            });
+        }
+
+        function GetEvents(item, projectItem) {
+            var accessMask = 0;
+            accessMask |= (+$('#profileIsDeputy').is(':checked') << 4);
+            accessMask |= (+$('#profileIsPartyMember').is(':checked') << 3);
+            accessMask |= (+$('#profileIsEmployee').is(':checked') << 2);
+            if (accessMask == 0)
+                accessMask |= 2;
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetEvents")',
+                data: { projectId: $(projectItem).attr('data-id'), personMask: accessMask },
+                error: function (e) { },
+                success: function (data) {
+                    var selectItem = item;
+                    var selectItemId = selectItem.attr('data-id');
+
+                    if (selectItem.prop) {
+                        var options = selectItem.prop('options');
+                    }
+                    else {
+                        var options = selectItem.attr('options');
+                    }
+                    $('option', selectItem).remove();
+
+                    if (data.length == 0) {
+                        options[0] = new Option('Немає подій', '');
+                        $(selectItem).attr('data-id', "");
+                        selectItem[0].selectIndex = 0;
+                    }
+                    else {
+                        var disabledOption = new Option('Виберіть подію', '');
+                        disabledOption.setAttribute('disabled', 'true');
+                        options[0] = disabledOption;
+
+                        data.forEach(function (item) {
+                            options[options.length] = new Option(item.eventName, item.id);
+                            $(options[options.length - 1]).attr('data-value-type', item.eventType);
+                        });
+
+                        selectItem.val(selectItemId);
+                    }
+
+                    selectItem.trigger('change');
+                }
+            });
+        }
+
+        function EditFormStatusEvent(e) {
+            var trEditFormStatus = e.closest('tr');
+            $(trEditFormStatus).attr('data-action-old', $(trEditFormStatus).data('action'));
+            $(trEditFormStatus).attr('data-action', '3');
+
+            var data = $(trEditFormStatus).find('td');
+            $($(data)[0]).attr('data-value', $($(data)[0]).html());
+            $($(data)[0]).html('');
+            let selectStatusEdit = $('#EditFormStatusNames').clone();
+            $(selectStatusEdit).removeAttr('id');
+            $(selectStatusEdit).removeAttr('data-id');
+            $($(data)[0]).append(selectStatusEdit);
+            $(selectStatusEdit).val($($(data)[0]).attr('data-id'));
+
+            var tdFormComment = $(data)[3];
+            var tdFormCommentText = $(tdFormComment).html();
+            $(tdFormComment).attr('data-value', tdFormCommentText);
+            $(tdFormComment).html('');
+            $(tdFormComment).append('<textarea class="form-control form-control-sm" rows="2">' + tdFormCommentText + '</textarea>');
+
+            $(trEditFormStatus).find('i[data-toggle="editformstatus"]').hide();
+            let divEditActions = $(trEditFormStatus).children().eq(4).find('div');
+            $(divEditActions).addClass('d-inline');
+        }
+
+        function AcceptFormStatusEvent(e) {
+            var needUpdate = false;
+            var trEditFormStatus = e.closest('tr');
+
+            var data = $(trEditFormStatus).find('td');
+            var newStatus = $($($(data)[0]).find('select')).find(':selected');
+
+            if ($(newStatus).val() != $($(data)[0]).data('id')) {
+                $($(data)[0]).attr('data-id', $(newStatus).val());
+                $($(data)[0]).attr('data-value', $(newStatus).text());
+                needUpdate = true;
+            }
+            $($(data)[0]).children().empty();
+            $($(data)[0]).html($($(data)[0]).data('value'));
+            $($(data)[0]).attr('data-value', '');
+
+            var newComment = $($(data)[3]).find('textarea');
+            if ($(newComment).val() != $($(data)[3]).attr('data-value')) {
+                $($(data)[3]).attr('data-value', $(newComment).val());
+                needUpdate = true;
+            }
+            $($(data)[3]).children().empty();
+            $($(data)[3]).html($($(data)[3]).attr('data-value'));
+            $($(data)[3]).removeAttr('data-value');
+
+            if (needUpdate && ($(trEditFormStatus).attr('data-action-old') == '-1' || $(trEditFormStatus).attr('data-action-old') == '2'))
+                $(trEditFormStatus).attr('data-action-old', '1');
+
+            $(trEditFormStatus).attr('data-action', $(trEditFormStatus).attr('data-action-old'));
+            $(trEditFormStatus).removeAttr('data-action-old');
+
+            $(trEditFormStatus).find('i[data-toggle="editformstatus"]').show();
+            let divEditActions = $(trEditFormStatus).children().eq(4).find('div');
+            $(divEditActions).removeClass('d-inline');
+        }
+
+        function DeleteFormStatusEvent(e) {
+            var trEditFormStatus = e.closest('tr');
+            let currentAction = $(trEditFormStatus).data('action');
+            if (currentAction == '0') {
+                $(trEditFormStatus).remove();
+                return;
+            }
+            $(trEditFormStatus).attr('data-action', '2');
+
+            let tdFormStatus = $(trEditFormStatus).children().eq(0);
+            tdFormStatus.html($(tdFormStatus).data('value'));
+            tdFormStatus.removeAttr('data-value');
+
+            let tdFormComment = $(trEditFormStatus).children().eq(3);
+            tdFormComment.empty();
+            tdFormComment.html($(tdFormComment).data('value'));
+            tdFormComment.removeAttr('data-value');
+
+            $(trEditFormStatus).find('i[data-toggle="editformstatus"]').show();
+            let divEditActions = $(trEditFormStatus).children().eq(4).find('div');
+            $(divEditActions).removeClass('d-inline');
+        }
+
+        function CancelFormStatusEvent(e) {
+            var trEditFormStatus = e.closest('tr');
+            $(trEditFormStatus).attr('data-action', $(trEditFormStatus).data('action-old'));
+            $(trEditFormStatus).removeAttr('data-action-old');
+
+            let tdFormStatus = $(trEditFormStatus).children().eq(0);
+            tdFormStatus.html($(tdFormStatus).data('value'));
+            tdFormStatus.removeAttr('data-value');
+
+            let tdFormComment = $(trEditFormStatus).children().eq(3);
+            tdFormComment.children().empty();
+            tdFormComment.html($(tdFormComment).data('value'));
+            tdFormComment.removeAttr('data-value');
+
+            $(trEditFormStatus).find('i[data-toggle="editformstatus"]').show();
+            let divEditActions = $(trEditFormStatus).children().eq(4).find('div');
+            $(divEditActions).removeClass('d-inline');
+        }
+
+        $('#profileIsEmployee').change(function () {
+            if ($(this).is(':checked')) {
+                $('#tableEmployee').show();
+            }
+            else {
+                $('#tableEmployee').hide();
+            }
+        });
+
+        $('#employeeIsAppoint').change(function () {
+            if ($(this).is(':checked')) {
+                $('#employeeAppointDate').removeAttr('disabled');
+            }
+            else {
+                $('#employeeAppointDate').attr('disabled', true);
+                $('#employeeAppointDate').val('');
+            }
+        });
+
+        $('#profileIsPartyMember').change(function () {
+            if ($(this).is(':checked')) {
+                $('#tableParty').show();
+            }
+            else {
+                $('#tableParty').hide();
+            }
+        });
+
+        $('#EditEmployeeIsAppoint').change(function () {
+            if ($(this).is(':checked')) {
+                $('#EditEmployeeAppointDate').removeAttr('disabled');
+            }
+            else {
+                $('#EditEmployeeAppointDate').attr('disabled', true);
+                $('#EditEmployeeAppointDate').val('');
+            }
+        });
+
+        $('#employeeIsDismiss').change(function () {
+            if ($(this).is(':checked')) {
+                $('#employeeDismissDate').removeAttr('disabled');
+            }
+            else {
+                $('#employeeDismissDate').attr('disabled', true);
+                $('#employeeDismissDate').val('');
+            }
+        });
+
+        $('#EditEmployeeIsDismiss').change(function () {
+            if ($(this).is(':checked')) {
+                $('#EditEmployeeDismissDate').removeAttr('disabled');
+            }
+            else {
+                $('#EditEmployeeDismissDate').attr('disabled', true);
+                $('#EditEmployeeDismissDate').val('');
+            }
+        });
+
+        $('#AreaNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetRegions();
+        });
+
+        $('#RegionNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetCommunities();
+        });
+
+        $('#CommunityNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetCities();
+        });
+
+        $('#CityNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetStreets();
+        });
+
+        $('#StreetNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+        });
+
+        $('#ProjectNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetEvents($('#EventNames'), $('#ProjectNames'));
+        });
+
+        $('#EventNames').change(function () {
+            if ($(this).children().length > 0) {
+                $(this).attr("data-id", this.value);
+                if (this.value != "") {
+                    $('#EventTypeNames').val($('#EventNames>option:selected').attr('data-value-type'));
+                    $('#EventTypeNames').removeClass('d-none');
+                }
+                else {
+                    $('#EventTypeNames').addClass('d-none');
+                }
+            }
+        });
+
+        $('#EditProjectNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetEvents($('#EditEventNames'), $('#EditProjectNames'));
+        });
+
+        $('#EditEventNames').change(function () {
+            if ($(this).children().length > 0) {
+                $(this).attr("data-id", this.value);
+                if (this.value != "") {
+                    $('#EditEventTypeNames').val($('#EditEventNames>option:selected').attr('data-value-type'));
+                    $('#EditEventTypeNames').removeClass('d-none');
+                }
+                else {
+                    $('#EditEventTypeNames').addClass('d-none');
+                }
+            }
+        });
+
+        $('#PersonStatusNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+        });
+
+        $('#EditPersonStatusNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+        });
+
+        $('#profileAddressModal').on('show.bs.modal', function (event) {
+            var input = $(event.relatedTarget);
+            var addrId = $('#' + $(input).attr('name') + '_ID').val();
+            var addrApartment = $('#' + $(input).attr('name') + '_ApartmentNumber').val();
+
+            $('#addressId').val(addrId);
+            $('#callerName').val($(input).attr('name'));
+
+            if ($(input).data('living') === true) {
+                $('#showLiving').removeClass('d-none');
+            }
+            else {
+                $('#showLiving').addClass('d-none');
+            }
+
+            if (addrId != '') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetFullAddress")',
+                    data: { id: addrId, appartment: addrApartment },
+                    async: false,
+                    success: function (data) {
+                        $('#AreaNames').attr('data-id', data.areaID);
+                        $('#RegionNames').attr('data-id', data.regionInAreaID);
+                        $('#CommunityNames').attr('data-id', data.communityInRegionID);
+                        $('#CityNames').attr('data-id', data.cityInCommunityID);
+                        $('#StreetNames').attr('data-id', data.streetInCityID);
+                        $('#BuildingNumber').val(data.buildingNumber);
+                        //$('#BuildingIssue').val(data.buildingIssue);
+                        $('#BuildingNumber').val(data.buildingNumber);
+                        $('#ApartmentNumber').val(data.apartmentNumber);
+                    }
+                });
+            }
+            GetAreas();
+        });
+
+        $('#profileAddressModal').on('hide.bs.modal', function (event) {
+            $('#AreaNames').attr('data-id', '');
+            $('#RegionNames').attr('data-id', '');
+            $('#CommunityNames').attr('data-id', '');
+            $('#CityNames').attr('data-id', '');
+            $('#StreetNames').attr('data-id', '');
+            $('#BuildingNumber').val('');
+            //$('#BuildingIssue').val('');
+            $('#BuildingNumber').val('');
+            $('#ApartmentNumber').val('');
+            $('#addressId').val('');
+            $('#callerName').val('');
+            $('#sameLiving').prop('checked', false);
+        });
+
+        $('#partyEmployeeModal').on('show.bs.modal', function (event) {
+            var input = $(event.relatedTarget);
+            trEditEmployee = input.closest('tr');
+
+            $('#EditOrganizationNames').attr('data-id', trEditEmployee.children().eq(0).attr('data-id'));
+            $('#EditOrganizationPositions').attr('data-id', trEditEmployee.children().eq(1).attr('data-id'));
+
+            var dateAppoint = trEditEmployee.children().eq(2).html();
+            var dateDismiss = trEditEmployee.children().eq(3).html();
+
+            if (dateAppoint != "") {
+                var parts = dateAppoint.split(".");
+                $('#EditEmployeeAppointDate').val(parts[2] + '-' + parts[1] + '-' + parts[0]);
+                $('#EditEmployeeIsAppoint').prop('checked', true).change();
+            }
+
+            if (dateDismiss != "") {
+                var parts = dateAppoint.split(".");
+                $('#EditEmployeeDismissDate').val(parts[2] + '-' + parts[1] + '-' + parts[0]);
+                $('#EditEmployeeIsDismiss').prop('checked', true).change();
+            }
+
+            GetOrganizations($('#EditOrganizationNames'));
+            GetPositions($('#EditOrganizationPositions'));
+        });
+
+        $('#partyEmployeeModal').on('hide.bs.modal', function (event) {
+            $('#EditOrganizationNames').attr('data-id', "");
+            $('#EditOrganizationPositions').attr('data-id', "");
+            $('#EditEmployeeIsAppoint').prop('checked', false).change();
+            $('#EditEmployeeIsDismiss').prop('checked', false).change();
+        });
+
+        $('#btnEmployeePositionEdit').on('click', function () {
+            if (trEditEmployee.attr('data-action') != "0")
+                trEditEmployee.attr('data-action', "1");
+            trEditEmployee.children().eq(0).attr('data-id', $('#EditOrganizationNames').find(':selected').val());
+            trEditEmployee.children().eq(0).html($('#EditOrganizationNames').find(':selected').text());
+            trEditEmployee.children().eq(1).attr('data-id', $('#EditOrganizationPositions').find(':selected').val());
+            trEditEmployee.children().eq(1).html($('#EditOrganizationPositions').find(':selected').text());
+
+            if ($('#EditEmployeeIsAppoint').is(':checked'))
+                trEditEmployee.children().eq(2).html(convertDate($('#EditEmployeeAppointDate').val()));
+            else
+                trEditEmployee.children().eq(2).html("");
+
+            if ($('#EditEmployeeIsDismiss').is(':checked'))
+                trEditEmployee.children().eq(3).html(convertDate($('#EditEmployeeDismissDate').val()));
+            else
+                trEditEmployee.children().eq(3).html("");
+
+            $('#partyEmployeeModal').modal('hide');
+        });
+
+        $('#btnEmployeePositionDelete').on('click', function () {
+            if ($(trEditEmployee).attr('data-action') != "0")
+                trEditEmployee.attr('data-action', "2");
+            else
+                $(trEditEmployee).remove();
+            $('#partyEmployeeModal').modal('hide');
+        });
+
+        $('#btnPersonEventDelete').on('click', function () {
+            if (trEditEvent.attr('data-action') != "0")
+                trEditEvent.attr('data-action', "2");
+            else
+                $(trEditEvent).remove();
+            $('#personEventModal').modal('hide');
+        });
+
+        $('#btnPersonEventEdit').on('click', function () {
+            if (trEditEvent.attr('data-action') != "0")
+                trEditEvent.attr('data-action', "1");
+            trEditEvent.children().eq(0).attr('data-id', $('#EditProjectNames').find(':selected').val());
+            trEditEvent.children().eq(0).html($('#EditProjectNames').find(':selected').text());
+            trEditEvent.children().eq(1).attr('data-id', $('#EditEventNames').find(':selected').val());
+            trEditEvent.children().eq(1).html($('#EditEventNames').find(':selected').text());
+            trEditEvent.children().eq(2).attr('data-id', $('#EditEventTypeNames').find(':selected').val());
+            trEditEvent.children().eq(2).html($('#EditEventTypeNames').find(':selected').text());
+            trEditEvent.children().eq(3).html($('#EditEventDate').val());
+            trEditEvent.children().eq(4).attr('data-id', $('#EditPersonStatusNames').find(':selected').val());
+            trEditEvent.children().eq(4).html($('#EditPersonStatusNames').find(':selected').text());
+            trEditEvent.children().eq(5).html($('#EditPersonEventComment').val());
+
+            $('#personEventModal').modal('hide');
+        });
+
+        $('#personEventModal').on('show.bs.modal', function (event) {
+            var input = $(event.relatedTarget);
+            trEditEvent = input.closest('tr');
+
+            $('#personEventAuthor').val("Автор: " + $(trEditEvent).data('username') + "; Створено: " + $(trEditEvent).data('create'));
+            $('#EditProjectNames').attr('data-id', trEditEvent.children().eq(0).attr('data-id'));
+            $('#EditEventNames').attr('data-id', trEditEvent.children().eq(1).attr('data-id'));
+            $('#EditEventDate').val(trEditEvent.children().eq(3).html());
+            $('#EditPersonStatusNames').val(trEditEvent.children().eq(4).attr('data-id'));
+            $('#EditPersonEventComment').val(trEditEvent.children().eq(5).html());
+            GetProjects($('#EditProjectNames'));
+            $('#EditPersonStatusNames').trigger('change');
+        });
+
+        $('#personEventModal').on('hide.bs.modal', function (event) {
+            $('#personEventAuthor').val('');
+            $('#EditProjectNames').attr('data-id', "");
+            $('#EditEventNames').attr('data-id', "");
+            $('#EditEventDate').val('');
+            $('#EditPersonStatusNames').val('');
+            $('#EditPersonEventComment').val('');
+        });
+
+        $('#personDublicatesModal').on('hide.bs.modal', function (event) {
+            $('#personDublicatesModal > div.modal-dialog > div.modal-content > div.modal-body').empty();
+        });
+
+        $('#btnAddEmployee').on('click', function () {
+            var newRow = $(this).closest("tr");
+            var newOrganization = $(newRow).find("#OrganizationNames");
+            var newPosition = $(newRow).find("#PositionNames");
+            var newAppointDate = $(newRow).find("#employeeAppointDate");
+            var newDismissDate = $(newRow).find("#employeeDismissDate");
+
+            if ($(newOrganization).find(":selected").val() === "" || $(newPosition).find(":selected").val() === "") {
+                return;
+            }
+
+            $(newRow).before('<tr data-id="" data-action="0">' +
+                '<td data-id="' + $(newOrganization).find(":selected").val() + '">' + $(newOrganization).find(":selected").text() + '</td >' +
+                '<td data-id="' + $(newPosition).find(":selected").val() + '">' + $(newPosition).find(":selected").text() + '</td >' +
+                '<td class="text-center">' + ($(newAppointDate).val() === "" ? "" : new Date($(newAppointDate).val()).toLocaleDateString("ru-RU")) + '</td >' +
+                '<td class="text-center">' + ($(newDismissDate).val() === "" ? "" : new Date($(newDismissDate).val()).toLocaleDateString("ru-RU")) + '</td>' +
+                '<td><a id="#btnEditPosition" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#partyEmployeeModal">Редагувати</a></td></tr >');
+
+            $(newOrganization).val("");
+            $(newPosition).val("");
+            $(newRow).find("#employeeIsAppoint").prop("checked", false).change();
+            $(newRow).find("#employeeIsDismiss").prop("checked", false).change();
+        });
+
+        $('#btnAddPersonEvent').on('click', function () {
+            var newRow = $(this).closest("tr");
+            var newProject = $(newRow).find("#ProjectNames");
+            var newEvent = $(newRow).find("#EventNames");
+            var newEventType = $(newRow).find("#EventTypeNames");
+            var newEventDate = $(newRow).find("#EventDate");
+            var newPersonStatus = $(newRow).find("#PersonStatusNames");
+            var newPersonEventComment = $(newRow).find('#NewPersonEventComment');
+
+            if ($(newProject).find(":selected").val() === "" || $(newEvent).find(":selected").val() === "") {
+                return;
+            }
+
+            $(newRow).before('<tr data-id="" data-action="0">' +
+                '<td data-id="' + $(newProject).find(":selected").val() + '">' + $(newProject).find(":selected").text() + '</td >' +
+                '<td data-id="' + $(newEvent).find(":selected").val() + '">' + $(newEvent).find(":selected").text() + '</td >' +
+                '<td class="text-center" data-id="' + $(newEventType).find(":selected").val() + '">' + $(newEventType).find(":selected").text() + '</td >' +
+                //'<td class="text-center">' + ($(newEventDate).val() === "" ? "" : new Date($(newEventDate).val()).toLocaleDateString("ru-RU")) + '</td>' +
+                '<td class="text-center">' + ($(newEventDate).val() === "" ? "" : moment($(newEventDate).val(), 'DD-MM-YYYY HH:mm').format('DD.MM.YYYY HH:mm')) + '</td>' +
+                '<td class="text-center" data-id="' + $(newPersonStatus).find(":selected").val() + '">' + $(newPersonStatus).find(":selected").text() + '</td >' +
+                '<td>' + $(newPersonEventComment).val() + '</td>' +
+                '<td><a id="#btnEditEvent" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#personEventModal">Редагувати</a></td></tr >');
+
+            $(newProject).val("");
+            $(newEvent).val("");
+            $(newPersonStatus).val("0");
+            $(newEvent).trigger('change');
+            $(newPersonEventComment).val("");
+        });
+
+        // сохранение анкеты
+        $('#btnAccept').on('click', function () {
+            // prevent multiple clicking
+            $(this).attr('disabled', 'disabled');
+
+            if (!ValidateProfile()) {
+                $(this).removeAttr('disabled');
+                return;
+            }
+
+            var person = new Object();
+            person.Id = $('#PersonId').val();
+            person.LastName = $('#profileLastName').val();
+            person.FirstName = $('#profileFirstName').val();
+            person.MiddleName = $('#profileMiddleName').val();
+            person.gender = parseInt($('#profileGender').val());
+            person.birthDate = $('#profileBirthDate').val() == '' ? null : $('#profileBirthDate').val();
+            person.registrationId = $('#AddressRegistration_ID').val();
+            person.registrationStreetID = $('#AddressRegistration_StreetID').val();
+            person.registrationBuilding = $('#AddressRegistration_Building').val();
+            person.registrationApartment = $('#AddressRegistration_ApartmentNumber').val();
+            person.livingId = $('#AddressLiving_ID').val();
+            person.livingStreetID = $('#AddressLiving_StreetID').val();
+            person.livingBuilding = $('#AddressLiving_Building').val();
+            person.livingApartment = $('#AddressLiving_ApartmentNumber').val();
+            person.Phone = "+" + $('#profilePhone').val().replace(/\D/g, '').substring(0, 12);
+            person.HasTelegram = Boolean($('#hasTelegram').is(':checked'));
+            person.HasViber = Boolean($('#hasViber').is(':checked'));
+            person.HasWhatsapp = Boolean($('#hasWhatsapp').is(':checked'));
+            person.Email = $('#profileEmail').val();
+            person.HasFacebook = Boolean($('#hasFacebook').is(':checked'));
+            person.HasInstagram = Boolean($('#hasInstagram').is(':checked'));
+            person.IsEmployee = Boolean($('#profileIsEmployee').is(':checked'));
+            person.IsPartyMember = Boolean($('#profileIsPartyMember').is(':checked'));
+            person.IsDeputy = Boolean($('#profileIsDeputy').is(':checked'));
+            person.IsDeleted = Boolean($('#profileIsDeleted').is(':checked'));
+
+            person.FormStatuses = new Array();
+            $('#tableFormStatuses').find('tr[data-id]').not('tr[data-id="newrow"]').each(function (index, element) {
+                let data = $(element).find('td');
+                let formStatus = new Object();
+                formStatus.Id = $(element).attr('data-id') == "" ? null : $(element).attr('data-id');
+                formStatus.FormStatus = $($(data)[0]).attr('data-id');
+                formStatus.CreateDate = $(data)[1].innerText.trim();
+                formStatus.UserId = $($(data)[2]).attr('data-id');
+                formStatus.Comment = $($(data)[3]).html();
+                formStatus.Action = $(element).attr('data-action');
+                person.FormStatuses.push(formStatus);
+            });
+
+            var personInfo = new Object();
+            personInfo.passportSeries = $('#profilePassportSeries').val();
+            personInfo.passportNumber = $('#profilePassportNumber').val();
+            personInfo.passportIssue = $('#profilePassportIssue').val();
+            personInfo.taxNumber = $('#profileTaxNumber').val();
+
+            person.PersonInfo = personInfo;
+
+            person.Positions = new Array();
+            $('#tableEmployee').find('tr[data-id]').each(function (index, element) {
+                var allEmployeeData = $(element).find('td');
+
+                var personEmployee = new Object();
+                personEmployee.Id = $(element).attr('data-id') == "" ? null : $(element).attr('data-id');
+                personEmployee.OrganizationId = $($(allEmployeeData)[0]).attr('data-id');
+                personEmployee.PositionId = $($(allEmployeeData)[1]).attr('data-id');
+                personEmployee.AppointDate = $(allEmployeeData)[2].innerText;
+                personEmployee.DismissDate = $(allEmployeeData)[3].innerText;
+                personEmployee.Action = person.IsEmployee ? $(element).attr('data-action') : "2";
+
+                person.Positions.push(personEmployee);
+            });
+
+            person.Events = new Array();
+            $('#tableEvent').find('tr[data-id]').each(function (index, element) {
+                var allEventData = $(element).find('td');
+
+                var personEvent = new Object();
+                personEvent.Id = $(element).attr('data-id') == "" ? null : $(element).attr('data-id');
+                personEvent.ProjectId = $($(allEventData)[0]).attr('data-id');
+                personEvent.EventId = $($(allEventData)[1]).attr('data-id');
+                personEvent.EventType = $($(allEventData)[2]).attr('data-id');
+                personEvent.EventDate = $(allEventData)[3].innerText;
+                personEvent.PersonStatus = $($(allEventData)[4]).attr('data-id');
+                personEvent.EventComment = $(allEventData)[5].innerText;
+                personEvent.Action = $(element).attr('data-action');
+
+                person.Events.push(personEvent);
+            });
+
+            person.Parties = new Array();
+            $('#tableParty').find('tr[data-id]').not('tr[data-id="newrow"]').not('tr[data-id="addrow"]').not('tr[data-id="editrow"]').each(function (index, element) {
+                var allPartyData = $(element).find('td');
+
+                var personParty = new Object();
+                personParty.Id = $(element).attr('data-id') == "" ? null : $(element).attr('data-id');
+                personParty.TicketNumber = $(allPartyData)[0].innerText;
+                personParty.EntryDate = $(allPartyData)[1].innerText;
+                personParty.AdoptionNumber = $($(allPartyData)[2]).attr('data-pp-anumber');
+                personParty.AdoptionDate = $($(allPartyData)[2]).attr('data-pp-adate');
+                personParty.AdoptionComment = $($(allPartyData)[2]).attr('data-pp-acomment');
+                personParty.DisposalNumber = $($(allPartyData)[3]).attr('data-pp-dnumber');
+                personParty.DisposalDate = $($(allPartyData)[3]).attr('data-pp-ddate');
+                personParty.DisposalCause = $($(allPartyData)[3]).attr('data-pp-dcause');
+                personParty.DisposalComment = $($(allPartyData)[3]).attr('data-pp-dcomment');
+                personParty.Action = $(element).attr('data-action');
+
+                person.Parties.push(personParty);
+            });
+
+            $.ajax({
+                url: '@Url.Action("EditPerson")',
+                data: JSON.stringify(person),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (e) {
+                    if (e.status == 401) {
+                        $('#alert-container').bsAlert('Необхідно авторизуватися. Поновіть сторінку.');
+                    }
+                    else {
+                        $('#alert-container').bsAlert(e.responseJSON);
+                    }
+                    $('#btnAccept').removeAttr('disabled');
+                },
+                success: function (data) {
+                    var returnUrl = '@Context.Request.Query["returnUrl"]';
+                    if (returnUrl != '')
+                        window.location = returnUrl;
+                    else
+                        window.location = '@Url.Action("List", "Person")?page=' + '@Context.Session.GetInt32("Page")' + '&ItemsPerPage=' + '@Context.Session.GetString("ItemsPerPage")';
+                }
+            });
+        });
+
+        $('#btnCancel').on('click', function () {
+            var returnUrl = '@Context.Request.Query["returnUrl"]';
+            if (returnUrl != '')
+                window.location = returnUrl;
+            else
+                window.location = '@Url.Action("List", "Person")?page=' + '@Context.Session.GetInt32("Page")' + '&ItemsPerPage=' + '@Context.Session.GetString("ItemsPerPage")';
+        });
+
+        $('#btnAddressAccept').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("GetAddressIdByStreet")',
+                data: { streetId: $('#StreetNames').attr('data-id'), buildingNumber: $('#BuildingNumber').val() },
+                type: 'GET',
+                async: false,
+                error: function (e) {
+                    $('#profileAddressModal').modal('hide');
+                },
+                success: function (data) {
+                    $('#addressId').val(data);
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetFullAddress")',
+                        data: { id: $('#addressId').val(), appartment: $('#ApartmentNumber').val() },
+                        async: false,
+                        success: function (data) {
+                            $('#profile' + $('#callerName').val()).val(
+                                data.areaName + ', ' +
+                                data.regionName + ', ' +
+                                data.communityName + ', ' +
+                                data.cityTypeName + data.cityName + ', ' +
+                                data.streetTypeName + data.streetName + ', ' +
+                                'буд. ' + data.buildingNumber +
+                                (data.apartmentNumber ? ', кв.' + data.apartmentNumber : ''));
+                            if ($('#sameLiving').is(':checked')) {
+                                $('#profileAddressLiving').val($('#profile' + $('#callerName').val()).val());
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#' + $('#callerName').val() + '_ID').val($('#addressId').val());
+            $('#' + $('#callerName').val() + '_StreetID').val($('#StreetNames').attr('data-id'));
+            $('#' + $('#callerName').val() + '_Building').val($('#BuildingNumber').val());
+            $('#' + $('#callerName').val() + '_ApartmentNumber').val($('#ApartmentNumber').val());
+            if ($('#sameLiving').is(':checked')) {
+                $('#AddressLiving_ID').val($('#addressId').val());
+                $('#AddressLiving_StreetID').val($('#StreetNames').attr('data-id'));
+                $('#AddressLiving_Building').val($('#BuildingNumber').val());
+                $('#AddressLiving_ApartmentNumber').val($('#ApartmentNumber').val());
+            }
+            $('#profileAddressModal').modal('hide');
+        });
+
+        $('#profilePhone').on('keydown', function (e) {
+            enforceFormat(e);
+        });
+
+        $('#profilePhone').on('keyup', function (e) {
+            formatToPhone(e);
+        });
+
+        $('#profilePhone').focusout(function (e) {
+            if (("+" + $('#profilePhone').val().replace(/\D/g, '').substring(0, 12)).length > 4 &&
+                ("+" + $('#profilePhone').val().replace(/\D/g, '').substring(0, 12)).length < 13) {
+                $('#profilePhone').addClass("invalid");
+                status = false;
+            } else {
+                $('#profilePhone').removeClass("invalid");
+            }
+        });
+
+        $('#profileLastName').focusout(function (e) {
+            if ($(this).val().trim() != "") {
+                needFindDublicates++;
+                FindDublicates();
+            }
+        });
+
+        $('#profileFirstName').focusout(function (e) {
+            if ($(this).val().trim() != "") {
+                needFindDublicates++;
+                FindDublicates();
+            }
+        });
+
+        $('#btnAddFormStatus').on('click', function () {
+            let addRow = $(this).closest("tr");
+            let newRow = $('tr[data-id="newrow"]').clone(true, true);
+            $(newRow).attr('data-id', '');
+            let newStatus = $(addRow).find('#EditFormStatusNames');
+            $(newRow).children().eq(0).attr('data-id', $(newStatus).find(':selected').val());
+            $(newRow).children().eq(0).html($(newStatus).find(':selected').text());
+            $(newRow).children().eq(1).html($(addRow).children().eq(1).html());
+            $(newRow).children().eq(2).attr('data-id', $(addRow).children().eq(2).attr('data-id'));
+            $(newRow).children().eq(2).html($(addRow).children().eq(2).html());
+            $(newRow).children().eq(3).html($(addRow).children().eq(3).children().eq(0).val());
+            $(addRow).before(newRow);
+            $(newRow).removeAttr('class');
+            $(addRow).children().eq(3).children().eq(0).val('');
+        });
+
+        $('#events-tab').on('click', function () {
+            GetProjects($('#ProjectNames'));
+        });
+
+        async function startHub() {
+            await hubConnection.start();
+            if ($('#PersonId').val() != '') {
+                await hubConnection.invoke('PersonEditing', $('#PersonId').val());
+            }
+        }
+
+        hubConnection.onclose(async () => {
+            await startHub();
+        });
+
+        $(document).ready(function () {
+            GetOrganizations($('#OrganizationNames'));
+            GetPositions($('#PositionNames'));
+            if ($('#profileIsEmployee').is(':checked')) {
+                $('#tableEmployee').show();
+            }
+            else {
+                $('#tableEmployee').hide();
+            }
+
+            if ($('#profileIsPartyMember').is(':checked')) {
+                $('#tableParty').show();
+            }
+            else {
+                $('#tableParty').hide();
+            }
+
+            $('#profilePhone').keyup();
+
+            $('#biEditEventDate').datetimepicker();
+
+            $('#biEventDate').datetimepicker();
+
+            $('#biPartyEntryDate').datetimepicker({
+                format: 'L'
+            });
+            $('#biPartyAdoptionDate').datetimepicker({
+                format: 'L'
+            });
+            $('#biPartyDisposalDate').datetimepicker({
+                format: 'L'
+            });
+
+            $('i[data-toggle="editformstatus"]').bind('click', function () {
+                EditFormStatusEvent(this);
+            });
+
+            $('i[data-toggle="acceptformstatus"]').bind('click', function () {
+                AcceptFormStatusEvent(this);
+            });
+
+            $('i[data-toggle="deleteformstatus"]').bind('click', function () {
+                DeleteFormStatusEvent(this);
+            });
+
+            $('i[data-toggle="cancelformstatus"]').bind('click', function () {
+                CancelFormStatusEvent(this);
+            });
+
+            $('i[data-toggle="row"]').each(function (index, element) {
+                var fName = this.getAttribute("data-target");
+                $(element).bind('click', function () {
+                    window[fName](this);
+                });
+            });
+
+            startHub();
+        });
+    </script>
+}

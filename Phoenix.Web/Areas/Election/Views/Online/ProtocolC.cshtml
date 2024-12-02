@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.Online.TotalProtocolByCouncil>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Protocol</title>
+    <link rel="stylesheet" href="~/css/online-protocol.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @*<script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>*@
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+</head>
+<body>
+    <p class="text-center">
+        <a href="/">Вернуться на главную страницу</a>
+    </p>
+
+    @foreach (var item in Model)
+    {
+        <div class="online-council" data-id="@item.CouncilId">
+            <div class="online-council-header">
+                <span>@item.CouncilName</span>
+            </div>
+            <div class="online-council-status">
+                <table>
+                    <tbody>
+                        <tr data-id="0">
+                            <th>нет данных</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-id="1">
+                            <th>частичные данные</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-id="2">
+                            <th>оперативные данных</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-id="3">
+                            <th>частичны протокол</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-id="4">
+                            <th>неверный протокол</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr data-id="5">
+                            <th>верный протокол</th>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="online-council-protocol">
+                NO DATA
+            </div>
+        </div>
+    }
+
+<script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/signalr/election")
+            .build();
+
+        function updateOnlineProtocolByCouncil(id) {
+            $.ajax({
+                url: 'GetTotalProtocolByCouncil',
+                data: { id: id },
+                type: 'GET',
+                error: function (e) { },
+                success: function (data) {
+                    var object = $('div[data-id="' + id + '"]');
+
+                    $(object).find('.online-council-header').find('span').html(data.councilName);
+                    var tableStatus = $(object).find('.online-council-status').find('table');
+                    //$(tableStatus).html('');
+                    for (i = 0; i < data.statuses.length; i++) {
+                        var row = $(tableStatus).find('tr[data-id="' + data.statuses[i].protocolStatusId + '"]');
+                        if (null != row && row.length == 1) {
+                            $(row[0]).children('td').eq(0).html(data.statuses[i].protocolStatusCount);
+                            $(row[0]).children('td').eq(1).html(data.statuses[i].protocolStatusPercent + ' %');
+                        }
+                    }
+
+                }
+            });
+        }
+
+        hubConnection.on('ReceiveOnlineTurnout', function () {
+            updateOnlineTurnout();
+        });
+
+        //updateOnlineProtocolByCouncil();
+
+    hubConnection.start();
+
+    $('body').find('div.online-council').each(function (index, element) {
+        updateOnlineProtocolByCouncil($(this).data('id'));
+    });
+</script>
+</body>
+</html>

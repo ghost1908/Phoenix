@@ -1,0 +1,39 @@
+﻿.pager-wrapper {
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.pager-item {
+    margin: 0 5vw;
+}
+
+.pager-item.is-disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pager-item-previuos {
+    border: solid 1px;
+    border-radius: 100% 0 0 100%;
+}
+
+.pager-item--navigable {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.pager-item--navigable:hover {
+    color: #83D01B;
+}
+
+@media screen and (max-width: 1280px) {
+    .pager-item {
+        font-size: 0.85rem;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .pager-item {
+        margin: 0 2.5vw;
+    }
+}

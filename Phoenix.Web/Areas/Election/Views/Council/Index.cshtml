@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.CouncilEditModel>
+
+@{
+    ViewData["Title"] = "Список советов";
+}
+
+<h3>Советы</h3>
+
+<table class="table table-bordered table-sm table-fixed">
+    <thead>
+        <tr class="text-center">
+            <th class="align-middle">Наименование совета</th>
+            <th class="align-middle">Тип совета</th>
+            <th class="align-middle">Тип округа</th>
+            <th class="align-middle">Кол-во округов</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.CouncilName</td>
+                <td>@item.CouncilTypeName</td>
+                <td>@item.DistrictTypeName</td>
+                <td>@item.DistrictCount</td>
+                <td>
+                    @Html.ActionLink("Редактировать", "Edit", new { id = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

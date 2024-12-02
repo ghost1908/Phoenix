@@ -1,0 +1,176 @@
+﻿@using Phoenix.Web.Models.Party;
+
+@model List<PersonPartyViewModel>
+
+<table id="tableParty" class="table table-sm table-bordered table-editable" style="display: none;">
+    <thead>
+        <tr class="text-center bg-info">
+            <th>№ квітка</th>
+            <th>Дата заяви</th>
+            <th>Вступ в партію</th>
+            <th>Вихід з партії</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var partyInfo in Model)
+        {
+            <tr data-id="@partyInfo.Id" data-action="@((int)partyInfo.Action)">
+                <td>@partyInfo.TicketNumber</td>
+                <td class="text-center">@Html.ShortDate(partyInfo.EntryDate)</td>
+                <td class="text-center with-white-space"
+                    data-pp-anumber="@partyInfo.AdoptionNumber"
+                    data-pp-adate="@Html.DateNull(partyInfo.AdoptionDate)"
+                    data-pp-acomment="@partyInfo.AdoptionComment">
+                    @string.Format("№{0} від {1}\n{2}", partyInfo.AdoptionNumber, Html.DateNull(partyInfo.AdoptionDate), partyInfo.AdoptionComment)
+                </td>
+                <td class="text-center with-white-space"
+                    data-pp-dnumber="@partyInfo.DisposalNumber"
+                    data-pp-ddate="@Html.DateNull(partyInfo.DisposalDate)"
+                    data-pp-dcause="@partyInfo.DisposalCause?.ToString("D")"
+                    data-pp-dcomment="@partyInfo.DisposalComment">
+                    @string.Format("№{0} від {1}\n{2}", partyInfo.DisposalNumber, Html.DateNull(partyInfo.DisposalDate), partyInfo.DisposalComment)
+                </td>
+                <td class="text-center fs-1-md align-middle">
+                    <i data-toggle="row" data-target="EditPersonPartyEvent" class="bi bi-pencil" title="Редагувати"></i>
+                    <div class="d-none">
+                        <i data-toggle="row" data-target="AcceptPersonPartyEvent" class="bi bi-check-circle text-primary" title="Зберегти"></i>
+                        <i data-toggle="row" data-target="DeletePersonPartyEvent" class="bi bi-dash-circle text-danger" title="Видалити"></i>
+                        <i data-toggle="row" data-target="CancelPersonPartyEvent" class="bi bi-x-circle" title="Відмінити"></i>
+                    </div>
+                </td>
+            </tr>
+        }
+        <tr data-id="addrow">
+            <td>
+                <input id="partyTicketNumber" class="form-control form-control-sm" />
+            </td>
+            <td>
+                <div class="input-group input-group-sm" id="biPartyEntryDate">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="bi bi-calendar-date"></i>
+                        </span>
+                    </div>
+                    <input id="partyEntryDate" type="text" class="form-control" />
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-row">
+                        <div class="form-check">
+                            <input type="checkbox" id="partyAdoption" class="form-check-input" />
+                        </div>
+                        <div class="input-group input-group-sm d-none" id="biPartyAdoptionDate">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                            <input id="partyAdoptionDate" type="text" class="form-control" placeholder="дата вступу" />
+                        </div>
+                    </div>
+                    <input id="partyAdoptionNumber" class="form-control form-control-sm d-none" type="text" placeholder="номер" />
+                    <input id="partyAdoptionComment" class="form-control form-control-sm d-none" type="text" placeholder="коментар" />
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-row">
+                        <div class="form-check">
+                            <input type="checkbox" id="partyDisposal" class="form-check-input" />
+                        </div>
+                        <div class="input-group input-group-sm d-none" id="biPartyDisposalDate">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                            <input id="partyDisposalDate" type="text" class="form-control" placeholder="дата виходу" />
+                        </div>
+                    </div>
+                    <input id="partyDisposalNumber" class="form-control form-control-sm d-none" type="text" placeholder="номер" />
+                    <select id="partyDisposalCauseNames" class="form-control form-control-sm d-none" asp-items="Html.GetEnumSelectList<PARTY_DISPOSAL_CAUSE>()" data-id=""></select>
+                    <input id="partyDisposalComment" class="form-control form-control-sm d-none" type="text" placeholder="коментар" />
+                </div>
+            </td>
+            <td class="text-center fs-1-md align-middle">
+                <i class="bi bi-plus-circle text-success" data-toggle="row" data-target="AddPersonPartyEvent" title="Додати"></i>
+            </td>
+        </tr>
+        <tr class="d-none" data-id="newrow" data-action="0">
+            <td></td>
+            <td class="text-center"></td>
+            <td class="text-center with-white-space" data-pp-anumber="" data-pp-adate="" data-pp-acomment=""></td>
+            <td class="text-center with-white-space" data-pp-dnumber="" data-pp-ddate=""
+                data-pp-dcause="" data-pp-dcomment=""></td>
+            <td class="text-center fs-1-md align-middle">
+                <i data-toggle="row" data-target="EditPersonPartyEvent" class="bi bi-pencil" title="Редагувати"></i>
+                <div class="d-none">
+                    <i data-toggle="row" data-target="AcceptPersonPartyEvent" class="bi bi-check-circle text-primary" title="Зберегти"></i>
+                    <i data-toggle="row" data-target="DeletePersonPartyEvent" class="bi bi-dash-circle text-danger" title="Видалити"></i>
+                    <i data-toggle="row" data-target="CancelPersonPartyEvent" class="bi bi-x-circle" title="Відмінити"></i>
+                </div>
+            </td>
+        </tr>
+        <tr class="d-none" data-id="editrow" data-editid="" data-action="">
+            <td>
+                <input id="editPartyTicketNumber" class="form-control form-control-sm" />
+            </td>
+            <td>
+                <div class="input-group input-group-sm" id="editBiPartyEntryDate">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="bi bi-calendar-date"></i>
+                        </span>
+                    </div>
+                    <input id="editPartyEntryDate" type="text" class="form-control" />
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-row">
+                        <div class="form-check">
+                            <input type="checkbox" id="editPartyAdoption" class="form-check-input" />
+                        </div>
+                        <div class="input-group input-group-sm d-none" id="editBiPartyAdoptionDate">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                            <input id="editPartyAdoptionDate" type="text" class="form-control" placeholder="дата вступу" />
+                        </div>
+                    </div>
+                    <input id="editPartyAdoptionNumber" class="form-control form-control-sm d-none" type="text" placeholder="номер" />
+                    <input id="editPartyAdoptionComment" class="form-control form-control-sm d-none" type="text" placeholder="коментар" />
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-row">
+                        <div class="form-check">
+                            <input type="checkbox" id="editPartyDisposal" class="form-check-input" />
+                        </div>
+                        <div class="input-group input-group-sm d-none" id="editBiPartyDisposalDate">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar-date"></i>
+                                </span>
+                            </div>
+                            <input id="editPartyDisposalDate" type="text" class="form-control" placeholder="дата виходу" />
+                        </div>
+                    </div>
+                    <input id="editPartyDisposalNumber" class="form-control form-control-sm d-none" type="text" placeholder="номер" />
+                    <select id="editPartyDisposalCauseNames" class="form-control form-control-sm d-none" asp-items="Html.GetEnumSelectList<PARTY_DISPOSAL_CAUSE>()" data-id=""></select>
+                    <input id="editPartyDisposalComment" class="form-control form-control-sm d-none" type="text" placeholder="коментар" />
+                </div>
+            </td>
+            <td class="text-center fs-1-md align-middle">
+                <i data-toggle="row" data-target="AcceptPersonPartyEvent" class="bi bi-check-circle text-primary" title="Зберегти"></i>
+                <i data-toggle="row" data-target="DeletePersonPartyEvent" class="bi bi-dash-circle text-danger" title="Видалити"></i>
+                <i data-toggle="row" data-target="CancelPersonPartyEvent" class="bi bi-x-circle" title="Відмінити"></i>
+            </td>
+        </tr>
+    </tbody>
+</table>

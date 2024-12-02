@@ -1,0 +1,60 @@
+﻿@model Phoenix.Web.Models.Territory.AddressViewModel
+
+<div class="row">
+    <div class="col">
+        <div class="form-group row">
+            <label asp-for="AreaName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <select name="AreaNames" id="AreaNames" class="form-control" data-id="@Model.AreaID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="RegionName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <select name="RegionNames" id="RegionNames" class="form-control" data-id="@Model.RegionInAreaID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="CommunityName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <select name="CommunityNames" id="CommunityNames" class="form-control" data-id="@Model.CommunityInRegionID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="CityName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <select name="CityNames" id="CityNames" class="form-control" data-id="@Model.CityInCommunityID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="StreetName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <select name="StreetNames" id="StreetNames" class="form-control" data-id="@Model.StreetInCityID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label asp-for="BuildingNumber" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="BuildingNumber" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="BuildingIssue" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="BuildingIssue" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="ApartmentNumber" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <input asp-for="ApartmentNumber" class="form-control" />
+            </div>
+        </div>
+
+    </div>
+</div>

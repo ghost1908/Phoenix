@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Territory.CityListModel>
+
+@{
+    ViewData["Title"] = "Міста";
+}
+
+<h1>Міста, села, селища</h1>
+
+<table class="table table-sm table-bordered">
+    <thead class="text-center bg-primary">
+        <tr>
+            <th class="align-middle">Міста</th>
+            <th class="align-middle">Територіальна громада</th>
+            <th class="align-middle">Район</th>
+            <th class="align-middle">Область</th>
+            <th class="align-middle">Кількість вулиць</th>
+        </tr>
+    </thead>
+    <tbody class="text-center">
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td class="text-left">
+                @Html.HiddenFor(modelItem => item.ID)
+                @Html.HiddenFor(modelItem => item.CityInCommunityID)
+                @Html.HiddenFor(modelItem => item.CommunityInRegionID)
+                @Html.HiddenFor(modelItem => item.RegionID)
+                @Html.HiddenFor(modelItem => item.RegionInAreaID)
+                @Html.HiddenFor(modelItem => item.AreaID)
+
+                <a asp-area="Party" asp-controller="Territory" asp-action="CityEdit" asp-route-cicId="@item.CityInCommunityID">@item.CityName</a>
+            </td>
+            <td class="text-left">
+                @Html.DisplayFor(modelItem => item.CommunityName)
+            </td>
+            <td class="text-left">
+                @Html.DisplayFor(modelItem => item.RegionName)
+            </td>
+            <td class="text-left">
+                @Html.DisplayFor(modelItem => item.AreaName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StreetCount)
+            </td>
+        </tr>
+        }
+    </tbody>
+    <tfoot class="text-center bg-primary">
+        <tr>
+            <th colspan="4" class="text-left">Всього</th>
+            <th>@Model.Sum(s => s.StreetCount)</th>
+        </tr>
+    </tfoot>
+</table>

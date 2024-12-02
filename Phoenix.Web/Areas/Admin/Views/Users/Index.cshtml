@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Admin.UserViewModel>
+
+@{
+    ViewData["Title"] = "Список пользователей";
+}
+
+<h1>Список пользователей</h1>
+
+<a class="btn btn-primary" asp-action="CreateUser">Создать</a>
+
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>Логин</th>
+            <th>Отображаемое имя</th>
+            <th>Доступы</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td data-id="@item.Id">@item.UserName</td>
+                <td>@item.DisplayName</td>
+                <td>@item.Accesses</td>
+                <td>
+                    <button class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Редактировать</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

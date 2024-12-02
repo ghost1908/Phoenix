@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Report.PersonBirthdayViewModel>
+
+@{
+    ViewData["Title"] = "Перелік днів народження";
+}
+
+<h1>Перелік днів народження</h1>
+
+@using (Html.BeginForm("GetPersonBirthday", "Report", FormMethod.Get))
+{
+    <div class="form-group row">
+        <label for="birthDay" class="col-3 col-form-label">Дата дня народження</label>
+        <input id="birthDay" name="birthDay" type="date" value='@Context.Request.Query["birthDay"]' class="form-control col-2" onchange="form.submit();" />
+    </div>
+}
+<hr />
+<table id="tblPersons" class="table table-bordered table-hover">
+    <thead>
+        <tr class="text-center bg-info">
+            <th>Прізвище</th>
+            <th>Ім'я</th>
+            <th>По батькові</th>
+            <th>Громада</th>
+            <th>Співробітник</th>
+            <th>Партія</th>
+            <th>Депутат</th>
+            <th>Років</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+            {
+        <tr class="clickable-row" style="@item.IsCongratulatedStyle" data-style="" 
+            data-id="@item.PersonId" data-href="/Party/Person/Edit?id=@item.PersonId&returnUrl=@string.Concat(Context.Request.Path, Context.Request.QueryString)"
+            title="">
+            <td>@item.LastName</td>
+            <td>@item.FirstName</td>
+            <td>@item.MiddleName</td>
+            <td>@item.AddressRegistration.CommunityName</td>
+            <td>@Html.YesNo(item.IsEmployee)</td>
+            <td>@Html.YesNo(item.IsPartyMember)</td>
+            <td>@Html.YesNo(item.IsDeputy)</td>
+            <td>@string.Format("{0} років", DateTime.Now.Year - (item.BirthDate.HasValue?item.BirthDate.Value.Year:DateTime.Now.Year))</td>
+        </tr>
+            }
+    </tbody>
+</table>
+
+@section Scripts{ 
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder().withUrl("/hub/person").build();
+
+    hubConnection.on("Notify", function (data) {
+        for (let i = 0; i < data.length; i++) {
+            $('#tblPersons tbody').find('tr[data-id="' + data[i].personId + '"]').each(function (e) {
+                if (data[i].style == "") {
+                    $(this).attr('style', $(this).data('style'));
+                    $(this).attr('data-style', "");
+                    $(this).attr('title', "");
+                } else {
+                    $(this).attr('data-style', $(this).attr('style'));
+                    $(this).attr('style', data[i].style);
+                    $(this).attr('title', data[i].userName);
+                }
+            });
+        }
+    });
+
+    async function startHub() {
+        await hubConnection.start();
+    }
+
+    hubConnection.onclose(async () => {
+        await startHub();
+    });
+
+    $(".clickable-row").click(function () {
+        window.location = $(this).data("href");
+    });
+
+    $(document).ready(function () {
+        startHub();
+    });
+</script>
+}

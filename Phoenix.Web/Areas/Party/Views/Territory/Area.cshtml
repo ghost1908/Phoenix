@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Territory.AreaListModel>
+
+@{
+    ViewData["Title"] = "Області";
+}
+
+<h1>Перелік областей</h1>
+
+<table class="table table-sm table-bordered">
+    <thead class="text-center bg-primary">
+        <tr>
+            <th rowspan="2">Назва області</th>
+            <th colspan="5">Кількість</th>
+        </tr>
+        <tr>
+            <th>районів</th>
+            <th>громад</th>
+            <th>міст</th>
+            <th>вулиць</th>
+            <th>дільниць</th>
+        </tr>
+    </thead>
+    <tbody class="text-center">
+@foreach (var item in Model) {
+        <tr>
+            <td class="text-left">
+                @Html.ActionLink(item.AreaName, "AreaEdit", "Territory", new { id = item.ID })
+            </td>
+            <td>
+                @Html.ActionLink(item.RegionCount.ToString(), "Region", "Territory", new { areaId = item.ID })
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CommunityCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CityCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StreetCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrecinctCount)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

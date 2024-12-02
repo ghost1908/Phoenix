@@ -1,0 +1,140 @@
+﻿@model Phoenix.Web.Models.Election.TurnoutListViewModel
+
+@{
+    ViewData["Title"] = "Явка на участках";
+}
+
+<h2>Явка на избирательных участках</h2>
+
+<table class="table table-sm table-bordered table-hover">
+    <thead class="text-center">
+        <tr>
+            <th scope="col" rowspan="2" class="align-middle">Теріторія</th>
+            <th scope="col" rowspan="2" class="align-middle">Громада</th>
+            <th scope="col" rowspan="2" class="align-middle">Дільниця</th>
+            
+            <th scope="col" rowspan="2" class="align-middle">Кількість виборців на 08:00</th>
+            <th scope="colgroup" colspan="@Model.TurnoutTimesCount">Явка виборців, станом на:</th>
+        </tr>
+        <tr>
+            @for (int i = 0; i < Model.TurnoutTimesCount; i++)
+            {
+                <th scope="col">
+                    @string.Format("{0:00}:{1:00}", Model.TurnoutTimes[i].Hours, Model.TurnoutTimes[i].Minutes)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.PrecinctsTurnout)
+        {
+            <tr>
+                <td scope="row">
+                    @Html.DisplayFor(modelItem => item.RegionName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CommunityName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PrecinctNumber)
+                </td>
+                <td class="text-right">
+                    @string.Format("{0:# ### ##0}", item.Voters)
+                </td>
+                @foreach (var value in item.TurnoutValues)
+                {
+                    <td class="hover-cell text-right" data-id="@value.Key" data-title="@item.PrecinctNumber" data-toggle="modal" data-target="#modalEditTurnout">
+                        @string.Format("{0:# ### ##0}", value.Value)
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="modal fade" id="modalEditTurnout" tabindex="-1" role="dialog" aria-labelledby="modalEditTurnoutTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditTurnoutTitle">PrecinctNumber</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">x</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="toId" />
+                <table class="table table-borderless">
+                    <tr>
+                        <th id="toTime">По состоянию на </th>
+                        <td>
+                            <input id="toVoters" type="number" class="form-control" />
+                            <span id="checkTime"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Отмена</button>
+                <button type="button" class="btn btn-success" id="btnSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+<script>
+    $('#modalEditTurnout').on('show.bs.modal', function () {
+        var chkTime = document.getElementById('checkTime');
+        var votersValue = document.getElementById('toVoters');
+        var buttonSave = document.getElementById('btnSave');
+        var id = $(this).data('id');
+        $('#modalEditTurnoutTitle').html($(this).data('title'));
+        $.ajax({
+            url: 'Turnout/GetTurnoutForEdit',
+            data: { id: id },
+            type: 'GET',
+            error: function (e) {
+                chkTime.style.display = "block";
+                chkTime.innerHTML = e.responseJSON.errorMessage;
+                votersValue.style.display = "none";
+                buttonSave.style.display = "none";
+            },
+            success: function (data) {
+                chkTime.style.display = "none";
+                chkTime.innerHTML = "";
+                votersValue.style.display = "block";
+                buttonSave.style.display = "block";
+                $('#toId').val(data.id);
+                $('#toTime').html('По состоянию на ' + data.turnoutTime.hours + ':00');
+                $('#toVoters').val(data.turnoutVoters);
+            }
+        });
+    });
+
+    $('#modalEditTurnout').on('shown.bs.modal', function () {
+        document.getElementById('toVoters').focus();
+    });
+
+    $('#btnSave').on('click', function () {
+        var turnout = new Object();
+        turnout.id = $('#toId').val();
+        turnout.turnoutVoters = parseInt($('#toVoters').val());
+
+        $.ajax({
+            url: 'Turnout/EditTurnoutPrecinct',
+            data: JSON.stringify(turnout),
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            error: function (e) { },
+            success: function (data) {
+                $('#modalEditTurnout').modal('hide');
+                location.reload();
+            }
+        });
+    });
+
+    $('.table-hover').find('td[data-target]').on('click', function () {
+        $('#modalEditTurnout').data('id', $(this).data('id'));
+        $('#modalEditTurnout').data('title', $(this).data('title'));
+    });
+</script>
+}

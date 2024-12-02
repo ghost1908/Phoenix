@@ -1,0 +1,76 @@
+﻿html {
+    box-sizing: border-box;
+}
+
+* {
+    box-sizing: inherit;
+    font-size: 1em;
+}
+
+body {
+    margin: 1.5rem;
+}
+
+div#dynamicOnlineElectionResult {
+    margin: 1rem;
+}
+
+div.progress {
+    position: relative;
+}
+
+div.progress span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+#processed-protocols {
+    text-align: center;
+    display: block;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 0 1rem black;
+    border-radius: 100%;
+    background-color: #FFF;
+    margin: 0;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+#processed-protocols:after {
+    display: block;
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    box-shadow: inset 0 0 1rem black;
+    content: attr(data-percent)"%";
+    border-radius: 100%;
+    font-size: 2rem;
+    line-height: 160px;
+    margin: 0;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+#protocols circle {
+    stroke: #0063ff;
+    stroke-width: 18px;
+    stroke-dasharray: 565.48px;
+    stroke-dashoffset: 0;
+}
+
+#protocols #protocols-percent {
+    stroke: #FFF;
+}

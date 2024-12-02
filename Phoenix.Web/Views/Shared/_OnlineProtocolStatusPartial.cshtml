@@ -1,0 +1,96 @@
+﻿@model Phoenix.Web.Models.Election.Online.ProtocolStatusViewModel
+
+    <table id="protocolStatuses" class="table table-bordered table-sm table-hover">
+        <thead>
+            <tr>
+                <th>Совет</th>
+                @foreach(var item in Model.Columns)
+                {
+                    <th>@item.StatusName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Rows)
+            {
+                <tr data-id="@item.CouncilName">
+                    <td>@item.CouncilName</td>
+                    @foreach (var status in Model.Columns)
+                    {
+                        <td>
+                            @item.Statuses.Where(p => p.StatusID == status.StatusID).Select(s => s.StatusCount).FirstOrDefault()
+                        </td>
+                    }
+                </tr>
+                @if (item.Children != null && item.Children.Count > 0)
+                {
+                    foreach (var child in item.Children)
+                    {
+                        <tr data-id="@child.CouncilName" data-parent-id="@item.CouncilName">
+                            <td>@child.CouncilName</td>
+                            @foreach (var status in Model.Columns)
+                            {
+                                <td>
+                                    @child.Statuses.Where(p => p.StatusID == status.StatusID).Select(s => s.StatusCount).FirstOrDefault()
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                @*@if (item.Children != null && item.Children.Count > 0)
+            {
+                foreach (var child in item.Children)
+                {
+                    <tr data-action="expand" data-id="@child.TerritoryName" data-parent-id="@item.TerritoryName">
+                        <td>@child.TerritoryName</td>
+                        <td>@child.TotalPrecincts</td>
+                        <td>@child.TotalNotOpened</td>
+                        <td>@child.TotalVoters</td>
+                        @foreach (var cncl in Model.Councils)
+                        {
+                    <td>
+                        @child.Councils.Where(p => p.CouncilTypeOrder == cncl.CouncilTypeOrder).Select(s => s.BulletinsReceived).FirstOrDefault()
+                    </td>
+                        }
+                    </tr>
+                    @if (child.Children != null && child.Children.Count > 0)
+                    {
+                        foreach (var childChild in child.Children)
+                        {
+                            <tr data-parent-id="@child.TerritoryName">
+                                <td>@childChild.TerritoryName</td>
+                                <td>@childChild.TotalPrecincts</td>
+                                <td>@childChild.TotalNotOpened</td>
+                                <td>@childChild.TotalVoters</td>
+                                @foreach (var cncl in Model.Councils)
+                                {
+                            <td>
+                                @childChild.Councils.Where(p => p.CouncilTypeOrder == cncl.CouncilTypeOrder).Select(s => s.BulletinsReceived).FirstOrDefault()
+                            </td>
+                                }
+                            </tr>
+                        }
+                    }
+                }
+
+            }*@
+            }
+        </tbody>
+    </table>
+
+<script>
+    //$('.table-hover').find('tr[data-id]').on('click', function () {
+    //    if ($(this).data('action') == "expand") {
+    //        $(this).data('action', "collapse");
+    //        $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+    //            $(element).hide();
+    //        });
+    //    }
+    //    else {
+    //        $(this).data('action', "expand");
+    //        $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+    //            $(element).show();
+    //        });
+    //    }
+    //});
+</script>

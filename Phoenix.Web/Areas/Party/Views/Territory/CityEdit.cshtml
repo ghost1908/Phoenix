@@ -1,0 +1,263 @@
+﻿@model Phoenix.Web.Models.Territory.CityEditModel
+
+@{
+    ViewData["Title"] = "Редагування міста";
+}
+
+<h1>Редагування <b>@Model.CityFullName</b></h1>
+
+<div class="row">
+    <div class="col">
+        <div class="form-group row">
+            <label for="AreaNames" class="col-sm-2 col-form-label">Область</label>
+            <div class="col-sm-10">
+                <select name="AreaNames" id="AreaNames" class="form-control" data-id="@Model.AreaId"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="RegionNames" class="col-sm-2 col-form-label">Район</label>
+            <div class="col-sm-10">
+                <select name="RegionNames" id="RegionNames" class="form-control" data-id="@Model.RegionInAreaID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="CommunityNames" class="col-sm-2 col-form-label">Громада</label>
+            <div class="col-sm-10">
+                <select name="CommunityNames" id="CommunityNames" class="form-control" data-id="@Model.CommunityInRegionID"></select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="CityNames" class="col-sm-2 col-form-label">Місто</label>
+            <div class="col-sm-10 input-group">
+                <select class="form-control col-sm-1" asp-for="@Model.CityTypeID" asp-items="@Model.CityTypes"></select>
+                <input class="form-control" asp-for="@Model.CityName" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="thead-dark text-center">
+            <tr>
+                <th class="col-3">Дільниця</th>
+                <th class="col-5">Вулиця</th>
+                <th class="col-2">Будинок з</th>
+                <th class="col-2">Будинок по</th>
+                <th class="col-md-auto"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var td in Model.Streets)
+            {
+                <tr data-id="@td.StreetInCityID" data-row="">
+                    <td data-id="@td.PrecinctId">@td.PrecinctNumber</td>
+                    <td data-id="@td.StreetID">@td.StreetName</td>
+                    <td class="text-center">@td.BuildingStart</td>
+                    <td class="text-center">@td.BuildingEnd</td>
+                    <td>
+                        <a id="strEdit" href="#">Редагувати</a>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    <select class="form-control" data-id="" asp-items="@Model.PrecinctNumbers"></select>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <select class="form-control" data-id="" asp-items="@Model.StreetNames"></select>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="btnNewStreet">&#10010</span>
+                        </div>
+                    </div>
+
+                </td>
+                <td>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <input type="checkbox" id="hasBuildStart" />
+                            </div>
+                        </div>
+                        <input type="text" class="form-control" id="newBuildingStart" disabled />
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <input type="checkbox" id="hasBuildEnd" />
+                            </div>
+                        </div>
+                        <input type="text" class="form-control" id="newBuildingEnd" disabled />
+                    </div>
+                </td>
+                <td>
+                    <a id="strAdd" href="#">Додати</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts
+{
+    <script>
+        function GetCommunities() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCommunityInRegion")',
+                data: { riaID: $('#RegionNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#CommunityNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає громад', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть громаду', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.communityName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetRegions() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetRegionInArea")',
+                data: { areaID: $('#AreaNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#RegionNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає районів', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть район', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.regionName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetAreas() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAreas")',
+            }).done(function (data) {
+                var selectItem = $('#AreaNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає областей', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть область', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.areaName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        $('#AreaNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetRegions();
+        });
+
+        $('#RegionNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetCommunities();
+        });
+
+        $('#CommunityNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+        });
+
+        $('#hasBuildStart').change(function () {
+            if ($(this).is(':checked')) {
+                $('#newBuildingStart').removeAttr('disabled');
+            }
+            else {
+                $('#newBuildingStart').attr('disabled', true);
+                $('#newBuildingStart').val('');
+            }
+        });
+
+        $('#hasBuildEnd').change(function () {
+            if ($(this).is(':checked')) {
+                $('#newBuildingEnd').removeAttr('disabled');
+            }
+            else {
+                $('#newBuildingEnd').attr('disabled', true);
+                $('#newBuildingEnd').val('');
+            }
+        });
+
+        $(document).ready(function () {
+            GetAreas();
+        });
+    </script>
+}

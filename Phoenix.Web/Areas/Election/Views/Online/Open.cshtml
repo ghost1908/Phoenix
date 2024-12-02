@@ -1,0 +1,43 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Онлайн - Открытие и явка</title>
+    <link rel="stylesheet" href="~/css/online.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+</head>
+<body>
+    <p class="text-center">
+        <a href="/">Вернуться на главную страницу</a>
+    </p>
+    <div id="dynamicOnlineOpen"></div>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/signalr/election")
+            .build();
+
+        function updateOnlineOpen() {
+            $.get('@Url.Action("OpenUpdate","Online")', function (content) {
+                $('#dynamicOnlineOpen').html(content);
+            });
+        }
+
+        hubConnection.on('ReceiveOnlineOpen', function () {
+            updateOnlineOpen();
+        });
+
+        updateOnlineOpen();
+
+        hubConnection.start();
+    </script>
+</body>
+</html>

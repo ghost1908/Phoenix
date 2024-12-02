@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "provider": "jsdelivr",
+      "library": "bootstrap@4.6.0",
+      "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "moment.js@2.29.1",
+      "destination": "wwwroot/lib/moment.js/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "bootstrap-icons@1.5.0",
+      "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "library": "@microsoft/signalr@latest",
+      "destination": "wwwroot/js/signalr/",
+      "files": [
+        "dist/browser/signalr.js",
+        "dist/browser/signalr.min.js",
+        "dist/browser/signalr.js.map",
+        "dist/browser/signalr.min.js.map"
+      ]
+    }
+  ]
+}

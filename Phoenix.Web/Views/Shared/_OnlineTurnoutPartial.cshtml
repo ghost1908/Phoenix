@@ -1,0 +1,139 @@
+﻿@model Phoenix.Web.Models.Election.Online.OnlineTurnoutViewModel
+
+<table class="table table-bordered table-sm table-hover">
+    <thead class="bg-info">
+        <tr>
+            <th rowspan="2">Територия</th>
+            <th rowspan="2" style="max-width: 150px;">Всего участков</th>
+            <th rowspan="2" style="max-width: 150px;">Кол-во избирателей на 08:00</th>
+            <th colspan="@(Model.ColumnCount-1)">Явка избирателей, по состоянию на:</th>
+        </tr>
+        <tr>
+            @*<th>08:00</th>*@
+            @foreach (var time in Model.TurnoutTimes)
+            {
+                <th colspan="3">@string.Format("{0:00}:{1:00}", time.Hours, time.Minutes)</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr data-action="expand" data-id="@item.TerritoryName" style="font-weight: 800;">
+                <td>@item.TerritoryName</td>
+                <td class="numeric">@string.Format("{0:# ### ##0}", item.TerritoryPrecincts)</td>
+                <td class="numeric">@string.Format("{0:# ### ##0}", item.TerritoryVoters)</td>
+                @foreach (var time in Model.TurnoutTimes)
+                {
+                    var column = item.Columns.Where(p => p.TurnoutTime == time).Select(s => new { Value = s.TurnoutValue, Percent = s.TurnoutPercent, Count = s.TurnoutPrecinctCount }).FirstOrDefault();
+                    <td style="min-width: 60px;" class="numeric">
+                        @string.Format("{0:# ### ##0}", column.Count)
+                    </td>
+                    <td style="min-width: 60px;" class="numeric">
+                        @string.Format("{0:# ### ##0}", column.Value)
+                    </td>
+                    <td style="min-width: 60px;" class="percent">
+                        @string.Format("{0:0.0} %", column.Percent)
+                    </td>
+                }
+            </tr>
+            @if (item.Children != null && item.Children.Count > 0)
+            {
+                foreach (var child in item.Children)
+                {
+                    <tr data-action="expand" data-id="@child.TerritoryName" data-parent-id="@item.TerritoryName" style="font-weight: 600;">
+                        <td>@child.TerritoryName</td>
+                        <td class="numeric">@string.Format("{0:# ### ##0}", child.TerritoryPrecincts)</td>
+                        <td class="numeric">@string.Format("{0:# ### ##0}", child.TerritoryVoters)</td>
+                        @foreach (var time in Model.TurnoutTimes)
+                        {
+                            var column = child.Columns.Where(p => p.TurnoutTime == time).Select(s => new { Value = s.TurnoutValue, Percent = s.TurnoutPercent, Count = s.TurnoutPrecinctCount }).FirstOrDefault();
+                            <td style="min-width: 60px;" class="numeric">
+                                @string.Format("{0:# ### ##0}", column.Count)
+                            </td>
+
+                            <td style="min-width: 60px;" class="numeric">
+                                @string.Format("{0:# ### ##0}", column.Value)
+                            </td>
+                            <td style="min-width: 60px;" class="percent">
+                                @string.Format("{0:0.0} %", column.Percent)
+                            </td>
+                        }
+                    </tr>
+                    @if (child.Children != null && child.Children.Count > 0)
+                    {
+                        foreach (var childChild in child.Children)
+                        {
+                            <tr data-parent-id="@child.TerritoryName">
+                                <td>@childChild.TerritoryName</td>
+                                <td class="numeric">@string.Format("{0:# ### ##0}", childChild.TerritoryPrecincts)</td>
+                                <td class="numeric">@string.Format("{0:# ### ##0}", childChild.TerritoryVoters)</td>
+                                @foreach (var time in Model.TurnoutTimes)
+                                {
+                                    var column = childChild.Columns.Where(p => p.TurnoutTime == time).Select(s => new { Value = s.TurnoutValue, Percent = s.TurnoutPercent, Count = s.TurnoutPrecinctCount }).FirstOrDefault();
+                                    <td style="min-width: 60px;" class="numeric">
+                                        @string.Format("{0:# ### ##0}", column.Count)
+                                    </td>
+
+                                    <td style="min-width: 60px;" class="numeric">
+                                        @string.Format("{0:# ### ##0}", column.Value)
+                                    </td>
+                                    <td style="min-width: 60px;" class="percent">
+                                        @string.Format("{0:0.0} %", column.Percent)
+                                    </td>
+                                }
+                            </tr>
+                            @if (childChild.Children != null && childChild.Children.Count > 0)
+                            {
+                                foreach (var cc in childChild.Children)
+                                {
+                                    <tr data-parent-id="@childChild.TerritoryName">
+                                        <td>@cc.TerritoryName</td>
+                                        <td class="numeric">@string.Format("{0:# ### ##0}", cc.TerritoryPrecincts)</td>
+                                        <td class="numeric">@string.Format("{0:# ### ##0}", cc.TerritoryVoters)</td>
+                                        @foreach (var time in Model.TurnoutTimes)
+                                        {
+                                            var column = cc.Columns.Where(p => p.TurnoutTime == time).Select(s => new { Value = s.TurnoutValue, Percent = s.TurnoutPercent, Count = s.TurnoutPrecinctCount }).FirstOrDefault();
+                                            <td style="min-width: 60px;" class="numeric">
+                                                @string.Format("{0:# ### ##0}", column.Count)
+                                            </td>
+
+                                            <td style="min-width: 60px;" class="numeric">
+                                                @string.Format("{0:# ### ##0}", column.Value)
+                                            </td>
+                                            <td style="min-width: 60px;" class="percent">
+                                                @string.Format("{0:0.0} %", column.Percent)
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    $('.table-hover').find('tr[data-id]').on('click', function () {
+        if ($(this).data('action') == "expand") {
+            $(this).data('action', "collapse");
+            $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+                $('.table-hover').find('tr[data-parent-id="' + $(element).data('id') + '"]').each(function (idx, child) {
+                    $(child).hide();
+                });
+                $(element).hide();
+                $(element).data('action', "collapse");
+            });
+        }
+        else {
+            $(this).data('action', "expand");
+            $('.table-hover').find('tr[data-parent-id="' + $(this).data('id') + '"]').each(function (index, element) {
+                $(element).show();
+            });
+        }
+    });
+    $('tr[data-action][data-parent-id*=" "]').trigger('click');
+</script>

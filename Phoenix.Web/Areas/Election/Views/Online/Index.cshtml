@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewData["Title"] = "Статистика";
+}
+
+<h1>Статистика</h1>
+
+<div class="container">
+    @*<div class="row row-cols-3 row-cols-md-3">
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-success">
+                    <a asp-action="Open" asp-controller="Online" asp-area="Election">
+                        <img src="~/images/unlock.png" class="card-img" />
+                        <div class="caption">
+                            <h3 hidden>Открытие<br />участков</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-warning">
+                    <a asp-action="Turnout" asp-controller="Online" asp-area="Election">
+                        <img src="~/images/turnout.png" class="card-img" />
+                        <div class="caption">
+                            <h3 hidden>Явки<br />на участках</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-info">
+                    <a asp-action="ElectionResult" asp-controller="Online" asp-area="Election">
+                        <img src="~/images/protocol.png" class="card-img" />
+                        <div class="caption">
+                            <h3 hidden>Протоколы</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>*@
+    <a class="btn btn-primary" asp-action="Open" asp-controller="Online" asp-area="Election">
+        Открытие участков
+    </a>
+    <a class="btn btn-secondary" asp-action="Turnout" asp-controller="Online" asp-area="Election">
+        Явка на участках
+    </a>
+    <a class="btn btn-danger" asp-action="ElectionResult" asp-controller="Online" asp-area="Election">
+        Онлайн результаты по советам
+    </a>
+    <a class="btn btn-info" asp-action="ProtocolStatuses" asp-controller="Online" asp-area="Election">
+        Онлайн результаты по статусам протоколов
+    </a>
+    <a class="btn btn-success" asp-action="OblZp" asp-controller="Online" asp-area="Election">
+        Результаты по областному совету (общие по партиям и округам)
+    </a>
+    <a class="btn btn-info" asp-action="Protocol" asp-controller="Online" asp-area="Election">
+        Общий протокол по советам
+    </a>
+</div>
+
+@section Scripts
+{
+    <script>
+    $('a').hover(
+        function () {
+            $(this).find(".caption").css("background", "rgba(127,127,127,0.4)");
+            $(this).find("h3").removeAttr("hidden");
+        }, function () {
+            $(this).find(".caption").css("background", "rgba(127,127,127,0)");
+            $(this).find("h3").attr("hidden", "");
+        }
+    );
+    </script>
+}

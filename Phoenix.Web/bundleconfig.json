@@ -1,0 +1,14 @@
+[
+  {
+    "outputFileName": "wwwroot/css/bootstrap-datetimepicker.min.css",
+    "inputFiles": [
+      "wwwroot/css/bootstrap-datetimepicker.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/bootstrap-datetimepicker.min.js",
+    "inputFiles": [
+      "wwwroot/js/bootstrap-datetimepicker.js"
+    ]
+  }
+]

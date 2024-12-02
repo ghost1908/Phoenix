@@ -1,0 +1,74 @@
+﻿@{ 
+    ViewData["Title"] = "Вибори";
+}
+
+<div class="row row-cols-4 row-cols-md-4">
+    <div class="col mb-4">
+        <div class="card text-center text-white bg-success">
+            <a asp-action="Index" asp-controller="Precinct" asp-area="Election">
+                <img src="~/images/unlock.png" class="card-img" />
+                <div class="caption">
+                    <h3 hidden>Відкриття<br />дільниць</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col mb-4">
+        <div class="card text-center text-white bg-warning">
+            <a asp-action="Index" asp-controller="Turnout" asp-area="Election">
+                <img src="~/images/turnout.png" class="card-img" />
+                <div class="caption">
+                    <h3 hidden>Введення явки<br />на дільницях</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col mb-4">
+        <div class="card text-center text-white bg-info">
+            <a asp-action="Index" asp-controller="Protocol" asp-area="Election">
+                <img src="~/images/protocol.png" class="card-img" />
+                <div class="caption">
+                    <h3 hidden>Внесення<br />протоколів</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col mb-4">
+        <div class="card text-center text-white bg-primary">
+            <a asp-action="Index" asp-controller="Online" asp-area="Election">
+                <img src="~/images/online.png" class="card-img" />
+                <div class="caption">
+                    <h3 hidden>Статистика</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+    @if (User.IsInRole("limited") || User.IsInRole("administrators"))
+    {
+        <div class="col mb-4">
+            <div class="card text-center text-white bg-success">
+                <a asp-action="Index" asp-controller="Report" asp-area="Election">
+                    <img src="~/images/online.png" class="card-img" />
+                    <div class="caption">
+                        <h3 hidden>Звіти</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts
+{
+<script>
+    $('a').hover(
+        function () {
+            $(this).find('.caption').css('background', 'rgba(127,127,127,0.4)');
+            $(this).find('h3').removeAttr('hidden');
+        },
+        function () {
+            $(this).find('.caption').css('background', 'rgba(127,127,127,0)');
+            $(this).find('h3').attr('hidden', '');
+        });
+</script>
+}

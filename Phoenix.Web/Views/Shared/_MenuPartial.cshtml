@@ -1,0 +1,83 @@
+﻿<ul class="navbar-nav flex-grow-1">
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarParty" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Партія
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarParty">
+            <li>
+                <a class="dropdown-item" asp-area="Party" asp-controller="Person" asp-action="List">Анкети</a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-area="Party" asp-controller="Organization" asp-action="Index">Структура</a>
+            </li>
+            <li class="dropdown-submenu">
+                <a class="dropdown-item dropdown-toggle" href="#" id="navbarPartyReport" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Звіти &#10132;</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarPartyReport">
+                    <li>
+                        <a class="dropdown-item" asp-area="Party" asp-controller="Report" asp-action="CreatedByPeriod">Внесені анкети</a>
+                    </li>
+                    @if (User.IsInRole("administrators") || User.IsInRole("limited"))
+                    {
+                        <li>
+                            <a class="dropdown-item" asp-area="Party" asp-controller="Report" asp-action="PlanResult">Виконання плану</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-area="Party" asp-controller="Report" asp-action="PersonState">Статуси анкет</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-area="Party" asp-controller="Report" asp-action="GetPersonBirthday">Дні народження</a>
+                        </li>
+                    }
+                </ul>
+            </li>
+        </ul>
+    </li>
+    @if (User.IsInRole("administrators"))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarCatalog" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Довідник
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarCatalog">
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="Area">Області</a></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="Region">Райони</a></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="Community">Громади</a></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="City">Міста</a></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="Street">Вулиці</a></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Territory" asp-action="Precinct">Дільниці</a></li>
+                <li><div class="dropdown-divider"></div></li>
+                <li><a class="dropdown-item" asp-area="Party" asp-controller="Event" asp-action="ProjectList">Проекти</a></li>
+            </ul>
+        </li>
+    }
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarElection" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Вибори
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarElection">
+            <a class="dropdown-item" asp-area="Election" asp-controller="Home" asp-action="Index">Місцеві вибори 2020</a>
+        </div>
+    </li>
+    @if (User.IsInRole("administrators"))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarAdmin" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Админ
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarAdmin">
+                <a class="dropdown-item" asp-area="Admin" asp-controller="Users" asp-action="Index">Пользователи</a>
+            </div>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarSupport" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Підтримка
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarSupport">
+                <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="ChangeLogs">Перелік змін</a>
+                <a class="dropdown-item" asp-area="ServiceDesk" asp-controller="Task" asp-action="Index">Завдання</a>
+            </div>
+        </li>
+    }
+</ul>

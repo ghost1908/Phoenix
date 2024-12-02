@@ -1,0 +1,39 @@
+﻿html {
+    box-sizing: border-box;
+}
+
+* {
+    box-sizing: inherit;
+    font-size: 1em;
+}
+
+body {
+}
+
+div#dynamicOnlineOpen,
+div#dynamicOnlineTurnout,
+div#dynamicOnlineProtocolStatus {
+    margin: 0.5rem;
+}
+
+.table thead th {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+tr[data-action] {
+    background-color: #5b8df3;
+}
+
+td.numeric {
+    text-align: right;
+}
+
+td.percent {
+    text-align: right;
+    width: 5%;
+}
+
+table#protocolStatuses > tbody > tr[data-parent-id] > td:first-child {
+    padding-left: 1.5rem;
+}

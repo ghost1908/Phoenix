@@ -1,0 +1,467 @@
+﻿@using Phoenix.Web.Models.Person;
+
+@model PersonListViewModel;
+
+@section Styles {
+<link rel="stylesheet" href="~/css/tristate.css" />
+<link rel="stylesheet" href="~/css/person.css" />
+}
+
+@{
+    ViewData["Title"] = "Анкети";
+}
+
+<div class="d-flex align-items-center justify-content-between">
+    <h1>Перелік анкет</h1>
+    <a id="createPerson" class="btn btn-danger" href="@Url.Action("Edit", "Person")">&#10010 Нова анкета</a>
+</div>
+<div class="d-flex flex-row align-items-center mb-2">
+    <a id="btnFilter" class="btn btn-info" data-toggle="modal" data-target="#personFilterModal">Фільтр</a>
+    <div class="ml-auto">
+        <label>Записів на сторінці:</label>
+        <select id="itemsPerPage" class="form-control-sm" onchange="UpdatePersonTable()">
+            <option value=10 selected>10</option>
+            <option value=25>25</option>
+            <option value=50>50</option>
+            <option value=0>Усі</option>
+        </select>
+    </div>
+</div>
+<table id="personList" class="table table-bordered table-sm table-hover table-fixed">
+    <thead>
+        <tr class="text-center bg-info">
+            <th>Прізвище</th>
+            <th>Ім'я</th>
+            <th>По батькові</th>
+            <th>Громада</th>
+            <th>Співробітник</th>
+            <th>Партія</th>
+            <th>Депутат</th>
+            <th>Дата створення</th>
+            <th>Статус</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<div class="pager">
+    <article class="pager-wrapper row justify-content-center">
+        <nav class="navbar border-top">
+            <a class="pager-item pager-item--navigable" id="Previous" aria-label="Previous" data-value="" onclick="UpdatePersonTable(this)">
+                Попередня
+            </a>
+            <span class="pager-item">
+                <span id="perPagePerson"></span> з <span id="totalPerson"></span> анкет - Сторінка <span id="currentPage"></span> з <span id="totalPage"></span>
+            </span>
+            <a class="pager-item pager-item--navigable" id="Next" aria-label="Next" data-value="" onclick="UpdatePersonTable(this)">
+                Наступна
+            </a>
+        </nav>
+    </article>
+</div>
+
+<div class="modal fade" id="personFilterModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="AreaNames" class="col-sm-2 col-form-label">Область</label>
+                    <div class="col-sm-10">
+                        <select name="AreaNames" id="AreaNames" class="form-control" data-id=""></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="RegionNames" class="col-sm-2 col-form-label">Район</label>
+                    <div class="col-sm-10">
+                        <select name="RegionNames" id="RegionNames" class="form-control" data-id=""></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="CommunityNames" class="col-sm-2 col-form-label">Громада</label>
+                    <div class="col-sm-10">
+                        <select name="CommunityNames" id="CommunityNames" class="form-control" data-id=""></select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <label for="Filter-HasTelegram" class="col-form-label">Telegram</label>
+                        @*<input class="input-check-switch" type="checkbox" asp-for="Filter.HasTelegram" />*@
+                        <span id="Filter-HasTelegram" class="tristate tristate-switcher">
+                            <input id="filter_has_telegram-state-off" type="radio" name="Filter_HasTelegram" value="0" />
+                            <input id="filter_has_telegram-state-null" type="radio" name="Filter_HasTelegram" value="null" />
+                            <input id="filter_has_telegram-state-on" type="radio" name="Filter_HasTelegram" value="1" />
+                            <i></i>
+                            <label for="filter_has_telegram-state-off">Ні</label>
+                            <label for="filter_has_telegram-state-null" empty=""></label>
+                            <label for="filter_has_telegram-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Filter-HasViber" class="col-form-label">Viber</label>
+                        <span id="Filter-HasViber" class="tristate tristate-switcher">
+                            <input id="filter_has_viber-state-off" type="radio" name="Filter_HasViber" value="0" />
+                            <input id="filter_has_viber-state-null" type="radio" name="Filter_HasViber" value="null" />
+                            <input id="filter_has_viber-state-on" type="radio" name="Filter_HasViber" value="1" />
+                            <i></i>
+                            <label for="filter_has_viber-state-off">Ні</label>
+                            <label for="filter_has_viber-state-null" empty=""></label>
+                            <label for="filter_has_viber-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Filter-HasWhatsapp" class="col-form-label">WhatsApp</label>
+                        <span id="Filter-HasWhatsapp" class="tristate tristate-switcher">
+                            <input id="filter_has_whatsapp-state-off" type="radio" name="Filter_HasWhatsapp" value="0" />
+                            <input id="filter_has_whatsapp-state-null" type="radio" name="Filter_HasWhatsapp" value="null" />
+                            <input id="filter_has_whatsapp-state-on" type="radio" name="Filter_HasWhatsapp" value="1" />
+                            <i></i>
+                            <label for="filter_has_whatsapp-state-off">Ні</label>
+                            <label for="filter_has_whatsapp-state-null" empty=""></label>
+                            <label for="filter_has_whatsapp-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="col-sm-3">
+                        <label for="Filter-IsEmployee" class="col-form-label">Співробітник</label>
+                        <span id="Filter-IsEmployee" class="tristate tristate-switcher">
+                            <input id="filter_is_employee-state-off" type="radio" name="Filter_IsEmployee" value="0" />
+                            <input id="filter_is_employee-state-null" type="radio" name="Filter_IsEmployee" value="null" checked="true" />
+                            <input id="filter_is_employee-state-on" type="radio" name="Filter_IsEmployee" value="1" />
+                            <i></i>
+                            <label for="filter_is_employee-state-off">Ні</label>
+                            <label for="filter_is_employee-state-null" empty=""></label>
+                            <label for="filter_is_employee-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Filter-IsDeputy" class="col-form-label">Депутат</label>
+                        <span id="Filter-IsDeputy" class="tristate tristate-switcher">
+                            <input id="filter_is_deputy-state-off" type="radio" name="Filter_IsDeputy" value="0" />
+                            <input id="filter_is_deputy-state-null" type="radio" name="Filter_IsDeputy" value="null" />
+                            <input id="filter_is_deputy-state-on" type="radio" name="Filter_IsDeputy" value="1" />
+                            <i></i>
+                            <label for="filter_is_deputy-state-off">Ні</label>
+                            <label for="filter_is_deputy-state-null" empty=""></label>
+                            <label for="filter_is_deputy-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Filter-IsPartyMember" class="col-form-label">Член партії</label>
+                        <span id="Filter-IsPartyMember" class="tristate tristate-switcher">
+                            <input id="filter_is_partymember-state-off" type="radio" name="Filter_IsPartyMember" value="0" />
+                            <input id="filter_is_partymember-state-null" type="radio" name="Filter_IsPartyMember" value="null" />
+                            <input id="filter_is_partymember-state-on" type="radio" name="Filter_IsPartyMember" value="1" />
+                            <i></i>
+                            <label for="filter_is_partymember-state-off">Ні</label>
+                            <label for="filter_is_partymember-state-null" empty=""></label>
+                            <label for="filter_is_partymember-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="col-sm-3">
+                        <label for="Filter-HasFacebook" class="col-form-label">Facebook</label>
+                        <span id="Filter-HasFacebook" class="tristate tristate-switcher">
+                            <input id="filter_has_facebook-state-off" type="radio" name="Filter_HasFacebook" value="0" />
+                            <input id="filter_has_facebook-state-null" type="radio" name="Filter_HasFacebook" value="null" />
+                            <input id="filter_has_facebook-state-on" type="radio" name="Filter_HasFacebook" value="1" />
+                            <i></i>
+                            <label for="filter_has_facebook-state-off">Ні</label>
+                            <label for="filter_has_facebook-state-null" empty=""></label>
+                            <label for="filter_has_facebook-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="Filter-HasInstagram" class="col-form-label">Instagram</label>
+                        <span id="Filter-HasInstagram" class="tristate tristate-switcher">
+                            <input id="filter_has_instagram-state-off" type="radio" name="Filter_HasInstagram" value="0" />
+                            <input id="filter_has_instagram-state-null" type="radio" name="Filter_HasInstagram" value="null" />
+                            <input id="filter_has_instagram-state-on" type="radio" name="Filter_HasInstagram" value="1" />
+                            <i></i>
+                            <label for="filter_has_instagram-state-off">Ні</label>
+                            <label for="filter_has_instagram-state-null" empty=""></label>
+                            <label for="filter_has_instagram-state-on">Так</label>
+                        </span>
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="col-sm-3">
+                        <label for="Filter-IsDeleted" class="col-form-label">Видалена анкета</label>
+                        <span id="Filter-IsDeleted" class="tristate tristate-switcher">
+                            <input id="filter_is_deleted-state-off" type="radio" name="Filter_IsDeleted" value="0" />
+                            <input id="filter_is_deleted-state-null" type="radio" name="Filter_IsDeleted" value="null" />
+                            <input id="filter_is_deleted-state-on" type="radio" name="Filter_IsDeleted" value="1" />
+                            <i></i>
+                            <label for="filter_is_deleted-state-off">Ні</label>
+                            <label for="filter_is_deleted-state-null" empty=""></label>
+                            <label for="filter_is_deleted-state-on">Так</label>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Відмінити</button>
+                <button id="btnFilterAccept" type="button" class="btn btn-success">Застосувати</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_LoadingPartial" />
+
+@section Scripts
+{
+    <script>
+        function showLoading() {
+            $('div[data-toggle="loading"]').removeClass('d-none');
+        }
+
+        function hideLoading() {
+            $('div[data-toggle="loading"]').addClass('d-none');
+        }
+
+        function UpdatePersonTable(element) {
+            $('#personList>tbody').empty();
+            showLoading();
+
+            var filterPerson = new Object();
+            filterPerson.Page = (element == undefined ? 0 : parseInt($(element).attr('data-value')));
+            filterPerson.ItemsPerPage = parseInt($('#itemsPerPage').find(':selected').val());
+            filterPerson.AreaId = $('#AreaNames').attr('data-id');
+            filterPerson.RegionId = $('#RegionNames').attr('data-id');
+            filterPerson.CommunityId = $('#CommunityNames').attr('data-id');
+            filterPerson.HasTelegram = $('input[name="Filter_HasTelegram"]:checked').val();
+            filterPerson.HasViber = $('input[name="Filter_HasViber"]:checked').val();
+            filterPerson.HasWhatsapp = $('input[name="Filter_HasWhatsapp"]:checked').val();
+            filterPerson.IsEmployee = $('input[name="Filter_IsEmployee"]:checked').val();
+            filterPerson.IsDeputy = $('input[name="Filter_IsDeputy"]:checked').val();
+            filterPerson.IsPartyMember = $('input[name="Filter_IsPartyMember"]:checked').val();
+            filterPerson.HasFacebook = $('input[name="Filter_HasFacebook"]:checked').val();
+            filterPerson.HasInstagram = $('input[name="Filter_HasInstagram"]:checked').val();
+            filterPerson.IsDeleted = $('input[name="Filter_IsDeleted"]:checked').val();
+
+            $.ajax({
+                url: '@Url.Action("FilterList")',
+                data: JSON.stringify(filterPerson),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (e) {
+                    if (e.status == 401) {
+                        $('#alert-container').bsAlert('Необхідно авторизуватися. Поновіть сторінку.');
+                    }
+                    else {
+                        $('#alert-container').bsAlert(e.responseJSON);
+                    }
+                    $('#btnAccept').removeAttr('disabled');
+                },
+                success: function (data) {
+                    //$('#personList>tbody').empty();
+                    data.persons.forEach(function (item) {
+                        $('#personList').find('tbody').append('<tr class="clickable-row' + (item.isDeleted ? ' bg-danger': '') + '" style="" data-href="/Party/Person/Edit?id=' + item.personId + '" + data-formstatus="' + item.lastFormStatus + '">' +
+                            '<td scope="row">' + item.lastName + '</td>' +
+                            '<td scope="row">' + item.firstName + '</td>' +
+                            '<td scope="row">' + item.middleName + '</td>' +
+                            '<td>' + item.addressRegistration.communityName + '</td >' +
+                            '<td class="text-center">' + (item.isEmployee ? 'Так' : 'Ні') + '</td >' +
+                            '<td class="text-center">' + (item.isPartyMember ? 'Так' : 'Ні') + '</td >' +
+                            '<td class="text-center">' + (item.isDeputy ? 'Так' : 'Ні') + '</td >' +
+                            '<td class="text-center">' + new Date(item.createDate).toLocaleString() + '</td >' +
+                            '<td class="text-center">' + item.lastStatusName + '</td>' +
+                        '</tr>');
+                    });
+                    $(".clickable-row").click(function () {
+                        window.location = $(this).data("href");
+                    });
+
+                    $('#AreaNames').attr('data-id', data.filter.areaId);
+                    $('#RegionNames').attr('data-id', data.filter.regionId);
+                    $('#CommunityNames').attr('data-id', data.filter.communityId);
+                    $('input[name="Filter_HasTelegram"][value="' + data.filter.hasTelegram + '"]').prop('checked', true);
+                    $('input[name="Filter_HasViber"][value="' + data.filter.hasViber + '"]').prop('checked', true);
+                    $('input[name="Filter_HasWhatsapp"][value="' + data.filter.hasWhatsapp + '"]').prop('checked', true);
+                    $('input[name="Filter_IsEmployee"][value="' + data.filter.isEmployee + '"]').prop('checked', true);
+                    $('input[name="Filter_IsDeputy"][value="' + data.filter.isDeputy + '"]').prop('checked', true);
+                    $('input[name="Filter_IsPartyMember"][value="' + data.filter.isPartyMember + '"]').prop('checked', true);
+                    $('input[name="Filter_HasFacebook"][value="' + data.filter.hasFacebook + '"]').prop('checked', true);
+                    $('input[name="Filter_HasInstagram"][value="' + data.filter.hasInstagram + '"]').prop('checked', true);
+                    $('input[name="Filter_IsDeleted"][value="' + data.filter.isDeleted + '"]').prop('checked', true);
+
+                    if (data.paginationInfo.actualPage == data.paginationInfo.totalPages - 1) {
+                        $('#Next').addClass('is-disabled');
+                    } else {
+                        $('#Next').removeClass('is-disabled');
+                    }
+
+                    if (data.paginationInfo.actualPage == 0) {
+                        $('#Previous').addClass('is-disabled');
+                    } else {
+                        $('#Previous').removeClass('is-disabled');
+                    }
+
+                    $('#Previous').attr('data-value', data.paginationInfo.actualPage - 1);
+                    $('#Next').attr('data-value', data.paginationInfo.actualPage + 1)
+
+                    $('#perPagePerson').html(data.paginationInfo.itemsPerPage * (data.paginationInfo.actualPage + 1));
+                    $('#totalPerson').html(data.paginationInfo.totalItems);
+                    $('#currentPage').html(data.paginationInfo.actualPage + 1);
+                    $('#totalPage').html(data.paginationInfo.totalPages);
+                },
+                complete: function () {
+                    hideLoading();
+                }
+            });
+        }
+
+        function GetCommunities() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCommunityInRegion")',
+                data: { riaID: $('#RegionNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#CommunityNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає громад', '');
+                    $(selectItem).attr('data-id', "null");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть громаду', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.communityName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetRegions() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetRegionInArea")',
+                data: { areaID: $('#AreaNames').attr('data-id') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#RegionNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає районів', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть район', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.regionName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        function GetAreas() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAreas")',
+            }).done(function (data) {
+                var selectItem = $('#AreaNames');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Немає областей', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Виберіть область', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.areaName, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        $('#AreaNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetRegions();
+        });
+
+        $('#RegionNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetCommunities();
+        });
+
+        $('#CommunityNames').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+        });
+
+        $('#ItemsPerPage').on('change', function () {
+            $(this.form).submit();
+        });
+
+        $('#btnFilterAccept').on('click', function () {
+            UpdatePersonTable();
+            $('#personFilterModal').modal('hide');
+        });
+
+        $('#personFilterModal').on('show.bs.modal', function (event) {
+            GetAreas();
+        });
+
+        $('#personFilterModal').on('hide.bs.modal', function (event) {
+            $('#AreaNames').attr('data-id', '');
+            $('#RegionNames').attr('data-id', '');
+            $('#CommunityNames').attr('data-id', '');
+        });
+
+        jQuery(document).ready(function ($) {
+            UpdatePersonTable();
+        });
+    </script>
+}

@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Territory.CommunityListModel>
+
+@{
+    ViewData["Title"] = "Громади";
+}
+
+<h1>Територіальні громади</h1>
+
+<p>
+    <a asp-action="CommunityCreate" asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")">Створити ОТГ</a>
+</p>
+
+    <table class="table table-sm table-bordered">
+        <thead class="text-center bg-primary">
+            <tr>
+                <th rowspan="2" class="align-middle">Територіальна громада</th>
+                <th rowspan="2" class="align-middle">Район</th>
+                <th rowspan="2" class="align-middle">Область</th>
+                <th colspan="3">Кількість</th>
+            </tr>
+            <tr>
+                <th>міст</th>
+                <th>вулиць</th>
+                <th>дільниць</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td class="text-left">
+                    @Html.HiddenFor(modelItem => item.ID)
+                    @Html.HiddenFor(modelItem => item.CommunityInRegionID)
+                    @Html.HiddenFor(modelItem => item.RegionID)
+                    @Html.HiddenFor(modelItem => item.RegionInAreaID)
+                    @Html.HiddenFor(modelItem => item.AreaID)
+
+                    @Html.DisplayFor(modelItem => item.CommunityName)
+                </td>
+                <td class="text-left">
+                    @Html.DisplayFor(modelItem => item.RegionName)
+                </td>
+                <td class="text-left">
+                    @Html.DisplayFor(modelItem => item.AreaName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CityCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StreetCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PrecinctCount)
+                </td>
+            </tr>
+            }
+        </tbody>
+        <tfoot class="text-center bg-primary">
+            <tr>
+                <th colspan="3" class="text-left">Всього</th>
+                <th>@Model.Sum(s => s.CityCount)</th>
+                <th>@Model.Sum(s => s.StreetCount)</th>
+                <th>@Model.Sum(s => s.PrecinctCount)</th>
+            </tr>
+        </tfoot>
+    </table>

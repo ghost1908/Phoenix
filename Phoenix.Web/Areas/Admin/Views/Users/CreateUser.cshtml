@@ -1,0 +1,111 @@
+﻿@model Phoenix.Web.Models.Admin.UserCreateModel
+
+@{
+    ViewData["Title"] = "Создание пользователя";
+}
+
+<h1>Создание пользователя</h1>
+<hr />
+<form asp-action="CreateUser">
+    <div class="row">
+        <div class="col-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DisplayName" class="control-label"></label>
+                <input asp-for="DisplayName" class="form-control" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">Объект</label>
+                @*@Html.DropDownList("Object",
+                       new SelectList(@Model.Objects, "ObjectId", "ObjectDisplayName"),
+                       "Select object",
+                       new { @class = "form-control", @data_table="@Model.ObjectName" })*@
+                <select asp-for="Object" class="form-control">
+                    <option value="" disabled="disabled" selected="selected">Выберите объект</option>
+                    @foreach(var item in Model.Objects) 
+                    {
+                        <option value="@item.ObjectId" data-table="@item.ObjectName">
+                            @item.ObjectDisplayName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Значение</label>
+                <select name="TableValues" id="TableValues" class="form-control" data-id=""></select>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+    
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section scripts
+{
+    <script>
+    function GetTableValues() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTableData")',
+                data: { tableName: $('#Object option:selected').data('table') ?? "" },
+            }).done(function (data) {
+                var selectItem = $('#TableValues');
+                var selectItemId = selectItem.attr('data-id');
+
+                if (selectItem.prop) {
+                    var options = selectItem.prop('options');
+                }
+                else {
+                    var options = selectItem.attr('options');
+                }
+                $('option', selectItem).remove();
+
+                if (data.length == 0) {
+                    options[0] = new Option('Нет данных', '');
+                    $(selectItem).attr('data-id', "");
+                    selectItem[0].selectIndex = 0;
+                }
+                else {
+                    var disabledOption = new Option('Выберите значение', '');
+                    disabledOption.setAttribute('disabled', 'true');
+                    options[0] = disabledOption;
+
+                    data.forEach(function (item) {
+                        options[options.length] = new Option(item.name, item.id);
+                    });
+
+                    selectItem.val(selectItemId);
+                }
+
+                selectItem.trigger('change');
+            });
+        }
+
+        $('#Object').change(function () {
+            if ($(this).children().length > 0)
+                $(this).attr("data-id", this.value);
+            GetTableValues();
+        });
+    </script>
+}

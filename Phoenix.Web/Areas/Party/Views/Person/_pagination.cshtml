@@ -1,0 +1,33 @@
+﻿@model Phoenix.Web.Models.PaginationInfo
+
+<div class="pager">
+    <article class="pager-wrapper row justify-content-center">
+        <nav class="navbar border-top">
+            <a class="pager-item pager-item--navigable @Model.Previous"
+                id="Previous"
+                aria-label="Previous"
+                asp-area="Party"
+                asp-controller="Person"
+                asp-action="List"
+                asp-route-page="@(Model.ActualPage - 1)"
+                asp-route-ItemsPerPage='@(ViewData["ItemsPerPage"])'>
+                Попередня
+            </a>
+
+            <span class="pager-item">
+                @Model.ItemsPerPage з @Model.TotalItems анкет - Сторінка @(Model.ActualPage + 1) з @Model.TotalPages
+            </span>
+
+            <a class="pager-item pager-item--navigable @Model.Next"
+                id="Next"
+                aria-label="Next"
+                asp-area="Party"
+                asp-controller="Person"
+                asp-action="List"
+                asp-route-page="@(Model.ActualPage + 1)"
+                asp-route-ItemsPerPage='@(ViewData["ItemsPerPage"])'>
+                Наступна
+            </a>
+        </nav>
+    </article>
+</div>

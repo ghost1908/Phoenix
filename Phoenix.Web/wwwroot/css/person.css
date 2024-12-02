@@ -1,0 +1,19 @@
+﻿#personList > tbody > tr[data-formstatus="0"] {
+    background-color: #fff;
+}
+
+#personList > tbody > tr[data-formstatus="1"] {
+    background-color: #9200ea !important;
+}
+
+#personList > tbody > tr[data-formstatus="2"] {
+    background-color: #e4ff36 !important;
+}
+
+#personList > tbody > tr[data-formstatus="255"] {
+    background-color: #26ff24;
+}
+
+#tableFormStatuses > tbody > tr[data-action="255"] > td > i#btnEditFormStatus {
+    display: none !important;
+}

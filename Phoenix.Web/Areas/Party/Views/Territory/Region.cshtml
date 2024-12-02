@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Territory.RegionListModel>
+
+@{
+    ViewData["Title"] = "Райони";
+}
+
+<h1>Перелік районів</h1>
+
+<table class="table table-sm table-bordered">
+    <thead class="text-center bg-info">
+        <tr>
+            <th rowspan="2" class="align-middle">Назва района</th>
+            <th rowspan="2" class="align-middle">Назва області</th>
+            <th colspan="4">Кількість</th>
+        </tr>
+        <tr>
+            <th>громад</th>
+            <th>міст</th>
+            <th>вулиць</th>
+            <th>дільниць</th>
+        </tr>
+    </thead>
+    <tbody class="text-center">
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td class="text-left">
+                @Html.ActionLink(item.RegionName, "RegionEdit", "Territory", new { id = item.ID })
+            </td>
+            <td class="text-left">
+                @Html.DisplayFor(modelItem => item.AreaName)
+            </td>
+            <td>
+                @Html.ActionLink(item.CommunityCount.ToString(), "Community", "Territory", new { areaId = item.AreaID, regId = item.ID })
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CityCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StreetCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrecinctCount)
+            </td>
+        </tr>
+        }
+    </tbody>
+    <tfoot class="text-center bg-primary">
+        <tr>
+            <th colspan="2" class="text-left">Всього</th>
+            <th>@Model.Sum(s => s.CommunityCount)</th>
+            <th>@Model.Sum(s => s.CityCount)</th>
+            <th>@Model.Sum(s => s.StreetCount)</th>
+            <th>@Model.Sum(s => s.PrecinctCount)</th>
+        </tr>
+    </tfoot>
+</table>

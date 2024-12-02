@@ -1,0 +1,46 @@
+﻿@model Phoenix.Web.Models.Election.ProtocolListViewModel
+
+@{
+    ViewData["Title"] = "Список протоколов";
+}
+
+<h3>Протоколы</h3>
+
+<table class="table table-bordered table-sm table-hover table-fixed">
+    <thead>
+        <tr class="text-center">
+            <th class="align-middle">Район</th>
+            <th class="align-middle">Громада</th>
+            <th class="align-middle">Дільниця</th>
+            @for(int c = 0; c < Model.Councils.Count; c++)
+            {
+                <th class="align-middle" scope="col">@Model.Councils[c]</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for(int r = 0; r < Model.Precincts.Count; r++)
+        {
+        <tr>
+            <td scope="row">@Model.Precincts[r].RegionName</td>
+            <td scope="row">@Model.Precincts[r].CommunityName</td>
+            <td scope="row">@Model.Precincts[r].PrecinctNumber</td>
+            @for (int c = 0; c < Model.Councils.Count; c++)
+            {
+                <td class="@Model.Precincts[r].Protocols[c].StatusCss" data-id="@Model.Precincts[r].Protocols[c].ProtocolId"></td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+{
+<script>
+    $('.table-hover').find('td[data-id]').on('click', function () {
+        if ($(this).data('id') != '')
+            window.location.href = '@Url.Action("Edit", "Protocol", new { id = "_id_", returnUrl = "_url_" })'.replace('_id_', $(this).data('id')).replace('_url_', window.location.href);
+    });
+
+</script>
+}

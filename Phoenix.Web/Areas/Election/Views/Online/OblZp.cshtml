@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.Online.Result.OblZpViewModel>
+@{
+    ViewData["Title"] = "Итоги по областному совету";
+}
+
+<h3>Итоги по областному совету</h3>
+<hr />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Округ 1</th>
+            <th>Округ 2</th>
+            <th>Округ 3</th>
+            <th>Округ 4</th>
+            <th>Округ 5</th>
+            <th>Округ 6</th>
+            <th>Округ 7</th>
+            <th>Округ 8</th>
+            <th>По области</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr data-id="@item.Order">
+            <td>
+                @{
+                    string firstCol = string.Empty;
+                    if (item.Order == 3)
+                    {
+                        firstCol = "Избирателей";
+                    }
+                    else if (item.Order == 9)
+                    {
+                        firstCol = "Проголосовало";
+                    }
+                    else
+                    {
+                        firstCol = item.CandidateName;
+                    }
+                }
+                @firstCol
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District1P)
+                }
+                else
+                {
+                    @item.District1
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District2P)
+                }
+                else
+                {
+                    @item.District2
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District3P)
+                }
+                else
+                {
+                    @item.District3
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District4P)
+                }
+                else
+                {
+                    @item.District4
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District5P)
+                }
+                else
+                {
+                    @item.District5
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District6P)
+                }
+                else
+                {
+                    @item.District6
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District7P)
+                }
+                else
+                {
+                    @item.District7
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.District8P)
+                }
+                else
+                {
+                    @item.District8
+                }
+            </td>
+            <td>
+                @if (item.Order == 10)
+                {
+                    @string.Format("{0:0.0} %", item.TotalP)
+                }
+                else
+                {
+                    @item.Total
+                }
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

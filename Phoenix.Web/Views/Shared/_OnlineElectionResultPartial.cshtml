@@ -1,0 +1,103 @@
+﻿@model Phoenix.Web.Models.Election.Online.ElectionResultViewModel
+
+<div class="table">
+    <div class="row">
+        <div class="col">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr class="text-center">
+                        <th style="width: 60px;">№</th>
+                        <th style="max-width: 60%;">Кандидат</th>
+                        @if(Model.CandidateResults.Exists(p=>p.Type==1))
+                        {
+                            <th>Выдвижение</th>
+                        }
+                        <th>Голосов</th>
+                        <th>Проценты</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CandidateResults)
+                    {
+                    <tr>
+                        <td class="text-center align-middle">@item.Position</td>
+                        <td>@item.Name</td>
+                        @if (Model.CandidateResults.Exists(p => p.Type == 1))
+                        {
+                            <td>@item.Nomination</td>
+                        }
+                        <td class="text-right">@string.Format("{0:# ### ##0}", item.Votes)</td>
+                        <td>
+                            <div class="progress" style="height: 1.5rem;">
+                                <div class="progress-bar bg-success text-dark" style="width: @item.Percent.ToString().Replace(",",".")%">
+
+                                </div>
+                                <span>@item.Percent.ToString("0.00")%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-3">
+            <div id="processed-protocols" data-percent="@Model.ProcessedProtocols.ToString("0.0").Replace(",",".")">
+                <svg id="protocols" width="200" height="200">
+                    <circle r="90" cx="50%" cy="50%" fill="transparent" />
+                    <circle id="protocols-percent" r="90" cx="50%" cy="50%" fill="transparent" transform="rotate(-90 100 100)" />
+                </svg>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-sm table-bordered text-center">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="align-middle">Всего избирательных участков с протоколами</th>
+                    <th colspan="5">Количество избирательных участков</th>
+                    <th colspan="2">Полный протокол</th>
+                </tr>
+                <tr>
+                    <th class="align-middle">нет данных</th>
+                    <th class="align-middle">неполный опер.протокол</th>
+                    <th class="align-middle">опер.протокол</th>
+                    <th class="align-middle">неполный протокол</th>
+                    <th class="align-middle">в т.ч. полн. протокол</th>
+                    <th class="align-middle">с ошибками</th>
+                    <th class="align-middle">правильные</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Model.Protocols.Total</td>
+                    <td>@Model.Protocols.NoData</td>
+                    <td>@Model.Protocols.NotOperationalData</td>
+                    <td>@Model.Protocols.OperationalData</td>
+                    <td>@Model.Protocols.NotFullData</td>
+                    <td>@Model.Protocols.FullData</td>
+                    <td>@Model.Protocols.WithErrors</td>
+                    <td>@Model.Protocols.GoodData</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row" style="margin-left: 20%; margin-right: 20%;">
+        <table class="table table-sm table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>Всего избирателей</th>
+                    <th>Проголосовало</th>
+                    <th>Явка, %</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@string.Format("{0:# ### ##0}", Model.TotalVoters)</td>
+                    <td>@string.Format("{0:# ### ##0}", Model.TotalVote)</td>
+                    <td>@string.Format("{0:0.00} %", Model.Turnout)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

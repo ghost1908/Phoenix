@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.Online.Protocol.ProtocolNKViewModel>
+
+@{
+    ViewData["Title"] = "Протоколы";
+}
+
+<table>
+    <thead class="text-center">
+        <tr>
+            <th>Теріторія</th>
+            <th>Громада</th>
+            <th>Дільниця</th>
+            <th>Пункт 11</th>
+            <th>P1</th>
+            <th>P2</th>
+            <th>P3</th>
+            <th>P4</th>
+            <th>P5</th>
+            <th>P6</th>
+            <th>P7</th>
+            <th>P8</th>
+            <th>P9</th>
+            <th>P10</th>
+            <th>P11</th>
+            <th>P12</th>
+            <th>P13</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @item.RegionName
+            </td>
+            <td>
+                @item.CommunityName
+            </td>
+            <td>
+                @item.PrecinctNumber
+            </td>
+            <td>
+                @item.Item11
+            </td>
+            <td>
+                @item.P1
+            </td>
+            <td>
+                @item.P2
+            </td>
+            <td>
+                @item.P3
+            </td>
+            <td>
+                @item.P4
+            </td>
+            <td>
+                @item.P5
+            </td>
+            <td>
+                @item.P6
+            </td>
+            <td>
+                @item.P7
+            </td>
+            <td>
+                @item.P8
+            </td>
+            <td>
+                @item.P9
+            </td>
+            <td>
+                @item.P10
+            </td>
+            <td>
+                @item.P11
+            </td>
+            <td>
+                @item.P12
+            </td>
+            <td>
+                @item.P13
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

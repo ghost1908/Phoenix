@@ -1,0 +1,233 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.PrecinctOpenViewModel>
+
+@{
+    ViewData["Title"] = "Открытие участков";
+}
+
+<h3>Список участков</h3>
+
+<table class="table table-sm table-bordered table-hover table-fixed">
+    <thead>
+        <tr class="text-center">
+            <th>Район</th>
+            <th>Громада</th>
+            <th>Дільниця</th>
+            <th>Причина</th>
+            <th>Виборців</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr style="@item.BackgroudStyle" data-id="@item.Id" data-toggle="modal" data-target="#modalPrecinctOpenEdit">
+                <td>
+                    @item.RegionName
+                </td>
+                <td>
+                    @item.CommunityName
+                </td>
+                <td>
+                    @item.Number
+                </td>
+                <td>
+                    @item.NotOpenedCause
+                </td>
+                <td>
+                    @item.Voters
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="modalPrecinctOpenEdit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalPrecinctOpenEditTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalPrecinctOpenEditTitle">Precinct open</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">x</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="precinctId" />
+                <input type="hidden" id="precinctOpened" />
+                <table class="table table-sm table-borderless" id="precinctData">
+                    <tbody>
+                        <tr>
+                            <th>Участок открыт</th>
+                            <td>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label id="stateNo" class="btn btn-secondary">
+                                        <input type="radio" name="stateOption" value="1" id="stateOptionNo" /> Нет
+                                    </label>
+                                    <label id="stateNull" class="btn btn-secondary active" style="display: none;">
+                                        <input type="radio" name="stateOption" value="0" id="stateOptionNull" />
+                                    </label>
+                                    <label id="stateYes" class="btn btn-secondary">
+                                        <input type="radio" name="stateOption" value="2" id="stateOptionYes" /> Да
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Кол-во избирателей</th>
+                            <td>
+                                <input id="prctVoters" type="number" class="form-control-sm" readonly/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">
+                                Количество бюллетеней по советам:
+                            </th>
+                        </tr>
+                        <tr id="trIssue">
+                            <th>Причина</th>
+                            <td>
+                                <textarea id="notOpenIssue" class="form-control" readonly></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-danger btn-block" data-dismiss="modal" aria-hidden="true">Отмена</button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-success btn-block" id="btnSave">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{ 
+<script>
+    function CheckOpen() {
+        return $('#precinctOpened').val();
+    }
+
+    $('#stateYes').click(function () {
+        $(this).addClass('btn-success');
+        $('#stateNo').removeClass('btn-danger');
+        //if (CheckOpen() == "true") {
+        //    $('#prctVoters').attr('readonly', true);
+        //    $('.CouncilItem input').attr('readonly', true);
+        //}
+        //else {
+            $('#prctVoters').removeAttr('readonly');
+            $('.CouncilItem input').removeAttr('readonly');
+        //}
+        //$('#notOpenIssue').attr('readonly', true);
+    });
+
+    $('#stateNo').click(function () {
+        if (CheckOpen() == "" || CheckOpen() == "false") {
+            $(this).addClass('btn-danger');
+            $('#stateYes').removeClass('btn-success');
+
+            $('.CouncilItem input').attr('readonly', true);
+            $('#notOpenIssue').removeAttr('readonly');
+        }
+    });
+
+    $('#stateNull').click(function () {
+        $('#stateYes').removeClass('btn-success');
+        $('#stateNo').removeClass('btn-danger');
+        $('#prctVoters').attr('readonly', true);
+        $('.CouncilItem input').attr('readonly', true);
+        $('#notOpenIssue').attr('readonly', true);
+    });
+
+    $(".table-hover").find('tr[data-target]').on('click', function () {
+        $('#modalPrecinctOpenEdit').data('id', $(this).data('id'));
+    });
+
+    $('#modalPrecinctOpenEdit').on('show.bs.modal', function () {
+        var precinctId = $(this).data('id');
+
+        $.ajax({
+            url: 'Precinct/GetForEdit',
+            data: { id: precinctId },
+            type: 'GET',
+            error: function (e) { },
+            success: function (data) {
+                $('#precinctId').val(data.id);
+                $('#prctVoters').val(data.voters);
+                $('#prctVoters').css('backgroundColor', 'rgb(255,255,255)')
+                $('#precinctOpened').val(data.isOpened);
+                $('#modalPrecinctOpenEditTitle').html('<h4>' + data.regionName + ': ' + data.number + '</h4>');
+                
+                for (i = 0; i < data.bulletins.length; i++) {
+                    $('#trIssue').before('<tr class="CouncilItem"><th>' + data.bulletins[i].councilName + '</th><td><input type="number" class="form-control-sm CouncilItemValue" data-id="' + data.bulletins[i].id + '" value="' + data.bulletins[i].councilBulletins+'"/></td></tr>');
+                }
+
+                $('#notOpenIssue').val(data.notOpenedCause);
+
+                if (null != data.isOpened) {
+                    if (data.isOpened) {
+                        $('#stateYes').trigger('click');
+                        //$('#btnSave').hide();
+                    }
+                    else {
+                        $('#stateNo').trigger('click');
+                        $('#btnSave').show();
+                    }
+                }
+                else {
+                    $('#stateNull').trigger('click');
+                    $('#btnSave').show();
+                }
+            }
+        })
+    });
+
+    $('#btnSave').on('click', function () {
+        var doNotSave = false;
+        var precinct = new Object();
+        precinct.id = $('#precinctId').val();
+        precinct.voters = parseInt($('#prctVoters').val());
+        
+        precinct.isOpened = !$('#stateNo').hasClass('active');    // !0 = 1 -> opened, !1 = 0 -> not opened
+        if (precinct.isOpened && precinct.voters <= 0) {
+            doNotSave = true;
+            $('#prctVoters').css('backgroundColor', 'red');
+        }
+        precinct.notOpenedCause = $('#notOpenIssue').val();
+        precinct.bulletins = new Array();
+        $('.CouncilItemValue').each(function (index, element) {
+            var council = new Object();
+            council.id = $(this).data('id');
+            council.councilBulletins = parseInt($(this).val());
+            precinct.bulletins.push(council);
+
+            //if (council.councilBulletins < precinct.voters) {
+            //    $(this).css('backgroundColor', 'red');
+            //    doNotSave = true;
+            //}
+        });
+
+        if (doNotSave == false)
+            $.ajax({
+                url: 'Precinct/EditPrecinctOpen',
+                data: JSON.stringify(precinct),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (e) { },
+                success: function (data) {
+                    $('#modalPrecinctOpenEdit').modal('hide');
+                    location.reload();
+                }
+            });
+    });
+
+    $('#modalPrecinctOpenEdit').on('hidden.bs.modal', function () {
+        $('.CouncilItem').remove();
+        // replace data
+    })
+</script>
+}

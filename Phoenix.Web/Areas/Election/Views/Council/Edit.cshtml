@@ -1,0 +1,30 @@
+﻿@model Phoenix.Web.Models.Election.CouncilEditModel
+
+@{
+    ViewData["Title"] = "Редактирование совета";
+}
+
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Наименование совета</span>
+    </div>
+    <input class="form-control" type="text" name="CouncilName" value="@Model.CouncilName" />
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Тип совета</span>
+    </div>
+    <input class="form-control" type="text" name="CouncilTypeName" value="@Model.CouncilTypeName" />
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Тип округа</span>
+    </div>
+    <input class="form-control" type="text" name="DistrictTypeName" value="@Model.DistrictTypeName" />
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Количество округов</span>
+    </div>
+    <input class="form-control" type="number" name="DistrictCount" value="@Model.DistrictCount" />
+</div>

@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Phoenix.Identity.Entities
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage" class="nav-link">
+                @{ 
+                    string userName = string.Empty;
+                    var user = User.FindFirst("DisplayName");
+                    if (user == null)
+                        userName = UserManager.GetUserName(User);
+                    else
+                        userName = user.Value;
+                }
+                @userName
+            </a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link">Вихід</button>
+            </form>
+        </li>
+    }
+    else
+    {
+
+        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+
+    }
+</ul>

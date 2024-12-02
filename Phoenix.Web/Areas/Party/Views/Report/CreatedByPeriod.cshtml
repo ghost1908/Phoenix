@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Report.CreatedPersonsViewModel>
+
+@{
+    ViewData["Title"] = "Звіт щодо внесених анкетах";
+}
+
+<h1>Звіт щодо внесених анкетах</h1>
+
+@using (Html.BeginForm("CreatedByPeriod", "Report", FormMethod.Get))
+{
+<div class="form-row form-inline">
+    <div class="form-group col-md-5">
+        <label for="startDate" class="col-8">Початкова дата</label>
+        <input id="startDate" name="startDate" type="date" value='@ViewData["sDate"]' class="form-control" />
+    </div>
+    <div class="form-group col-md-5">
+        <label for="endDate" class="col-8">Кінцева дата</label>
+        <input id="endDate" name="endDate" type="date" value='@ViewData["eDate"]' class="form-control" />
+    </div>
+    <input type="submit" value="Сформувати" class="btn-primary form-control" />
+</div>
+}
+<hr />
+<table class="table table-bordered">
+    <thead>
+        <tr class="text-center">
+            <th>
+                @Html.DisplayNameFor(model => model.RegionName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CommunityName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalCount)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegionName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CommunityName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.TotalCount)
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="3">Всього</th>
+            <th class="text-right">@ViewData["Total"]</th>
+        </tr>
+    </tfoot>
+</table>

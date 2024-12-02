@@ -1,0 +1,178 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Election.ProtocolItemViewModel>
+@{
+    ViewData["Title"] = "Результаты по протоколам";
+}
+
+<h2>Общий протоколо по советам</h2>
+
+@using (Html.BeginForm("Protocol", "Online", FormMethod.Get))
+{
+    <div class="form-inline">
+        @Html.DropDownList("councilId", new SelectList(ViewBag.councilId, "Value", "Text"), "--- выберите совет ---", new { @class = "form-control", onchange = "this.form.submit()" })
+        @Html.DropDownList("districtId", new SelectList(ViewBag.districtId, "Value", "Text"), "--- все округа ---", new { @class = "form-control", onchange = "this.form.submit()" })
+        @Html.DropDownList("precinctId", new SelectList(ViewBag.precinctId, "Value", "Text"), "--- все участки ---", new { @class = "form-control", onchange = "this.form.submit()" })
+    </div>
+}
+<hr />
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Пункт протокола</th>
+            <th>Значение</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            if (item.IsMultiple)
+            {
+                <tr class="TemplateItem-Multiple table-info" data-id="@item.Order">
+                    <th>@item.Order</th>
+                    <td>@item.Name</td>
+                    <td>
+                        <input class="form-control form-control-sm MultyValue" value="@item.Value" disabled="disabled" />
+                    </td>
+                </tr>
+                @foreach (var child in item.ChildItems)
+                {
+                    if (child.IsMultiple)
+                    {
+                        <tr class="TemplateItem-Multiple table-secondary" data-parent-id="@item.Order" data-parent-name="@child.Name.Replace("\"", "'")">
+                            <td>@child.Order</td>
+                            <td>@child.Name</td>
+                            <td>
+                                <input class="form-control form-control-sm MultyValue" value="@child.Value" readonly />
+                            </td>
+                        </tr>
+                        @foreach (var childChild in child.ChildItems)
+                        {
+                            <tr class="TemplateItem-Single" data-parent-id="@item.Order" data-parent-name="@child.Name.Replace("\"", "'")">
+                                <td>@childChild.Order</td>
+                                <td>@childChild.Name</td>
+                                <td>
+                                    <input class="form-control form-control-sm TemplateValue" value="@childChild.Value" readonly />
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr class="TemplateItem-Single" data-parent-id="@item.Order" data-parent-name="@child.Name.Replace("\"", "'")">
+                            <td>@child.Order</td>
+                            <td>@child.Name</td>
+                            <td>
+                                <input class="form-control form-control-sm TemplateValue" value="@child.Value" readonly />
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+            else
+            {
+                <tr class="TemplateItem-Single table-info" data-id="@item.Order" data-parent-name="@item.Name">
+                    <th>@item.Order</th>
+                    <td>@item.Name</td>
+                    <td>
+                        <input class="form-control form-control-sm TemplateValue" value="@item.Value" disabled="disabled" />
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@section Scripts
+{
+    <script>
+        
+        function ValidateProtocol() {
+            if ($('.table').find('tr[data-id="11"]').hasClass('TemplateItem-Single')) {
+                var row11 = parseInt($('.table').find('tr[data-id="11"]').find('.TemplateValue').val()) || 0;
+
+                // сумма 12
+                var row12 = 0;
+                $('.table').find('tr[data-parent-id="12"]').find('.TemplateValue').each(function (index, element) {
+                    row12 += parseInt($(element).val() || 0);
+                });
+                $('.table').find('tr[data-id="12"]').find('.MultyValue').val(row12);
+
+                if (row11 != row12) {
+                    $('.table').find('tr[data-id="11"]').find('.TemplateValue').css("backgroundColor", "#FFA000");
+                    $('.table').find('tr[data-id="12"]').find('.TemplateValue').css("backgroundColor", "#FFA000");
+                }
+                else {
+                    $('.table').find('tr[data-id="11"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                    $('.table').find('tr[data-id="12"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                }
+
+                // сумма 13
+                var row13 = 0;
+                $('.table').find('tr[data-parent-id="13"]').find('.TemplateValue').each(function (index, element) {
+                    row13 += parseInt($(element).val() || 0);
+                });
+                $('.table').find('tr[data-id="13"]').find('.MultyValue').val(row13);
+
+                // сумма 14
+                $('.table').find('tr[class*="TemplateItem-Multiple"][data-parent-id="14"]').each(function (index, element) {
+                    var row14 = 0;
+                    $('.table').find('tr[class*="TemplateItem-Single"][data-parent-id="14"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').find('.TemplateValue').each(function (i, e) {
+                        row14 += parseInt($(e).val() || 0);
+                    });
+                    $(element).find('.MultyValue').val(row14);
+                });
+
+                // 12 = 13 + 14
+                $('.table').find('tr[class*="TemplateItem-Single"][data-parent-id="12"]').each(function (index, element) {
+                    var row12 = parseInt($(element).find('.TemplateValue').val() || 0);
+                    var row13 = parseInt($('.table').find('tr[class*="TemplateItem-Single"][data-parent-id="13"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').find('.TemplateValue').val() || 0);
+                    var row14 = parseInt($('.table').find('tr[class*="TemplateItem-Multiple"][data-parent-id="14"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').find('.MultyValue').val() || 0);
+                    if (row12 != row13 + row14) {
+                        $(element).css("backgroundColor", "#FFA000");
+                        $('.table').find('tr[class*="TemplateItem-Single"][data-parent-id="13"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').css("backgroundColor", "#FFA000");
+                        $('.table').find('tr[class*="TemplateItem-Multiple"][data-parent-id="14"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').css("backgroundColor", "#FFA000").removeClass('table-secondary');
+                    } else {
+                        $(element).css("backgroundColor", "#FFF");
+                        $('.table').find('tr[class*="TemplateItem-Single"][data-parent-id="13"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').css("backgroundColor", "#FFF");
+                        $('.table').find('tr[class*="TemplateItem-Multiple"][data-parent-id="14"][data-parent-name="' + $(element).data('parent-name').replace(/"/g, "'") + '"]').css("backgroundColor", "#FFF").addClass('table-secondary');
+                    }
+                });
+            }
+
+                var row1 = parseInt($('.table').find('tr[data-id="1"]').find('.TemplateValue').val()) || 0;
+                var row2 = parseInt($('.table').find('tr[data-id="2"]').find('.TemplateValue').val()) || 0;
+                var row7 = parseInt($('.table').find('tr[data-id="7"]').find('.TemplateValue').val()) || 0;
+                var row9 = parseInt($('.table').find('tr[data-id="9"]').find('.TemplateValue').val()) || 0;
+                var row10 = parseInt($('.table').find('tr[data-id="10"]').find('.TemplateValue').val()) || 0;
+
+                if (row1 != row2 + row7) {
+                    $('.table').find('tr[data-id="1"]').find('.TemplateValue').css("backgroundColor", "#FFA0A0");
+                    $('.table').find('tr[data-id="2"]').find('.TemplateValue').css("backgroundColor", "#FFA0A0");
+                    $('.table').find('tr[data-id="7"]').find('.TemplateValue').css("backgroundColor", "#FFA0A0");
+                }
+                else {
+                    $('.table').find('tr[data-id="1"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                    $('.table').find('tr[data-id="2"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                    $('.table').find('tr[data-id="7"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                }
+
+                if (row9 != row10 + row11) {
+                    $('.table').find('tr[data-id="9"]').find('.TemplateValue').css("backgroundColor", "#FFB36C");
+                    $('.table').find('tr[data-id="10"]').find('.TemplateValue').css("backgroundColor", "#FFB36C");
+                    $('.table').find('tr[data-id="11"]').find('.TemplateValue').css("backgroundColor", "#FFB36C");
+                }
+                else {
+                    $('.table').find('tr[data-id="9"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                    $('.table').find('tr[data-id="10"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                    $('.table').find('tr[data-id="11"]').find('.TemplateValue').css("backgroundColor", "#FFF");
+                }
+            
+        }
+
+        $(window).on('load', function() {
+            ValidateProtocol();
+        });
+                
+    </script>
+}

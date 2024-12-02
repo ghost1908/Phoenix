@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewData["Title"] = "Настройки";
+}
+
+    <div class="container">
+        <div class="row row-cols-3 row-cols-md-3">
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-success">
+                    <img src="~/images/unlock.png" class="card-img" />
+                    <div class="card-img-overlay">
+                        <a class="card-text" asp-action="Precinct" asp-controller="Config" asp-area="Election">Участки</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-success">
+                    <img src="~/images/unlock.png" class="card-img" />
+                    <div class="card-img-overlay">
+                        <a class="card-text" asp-action="Precinct" asp-controller="Config" asp-area="Election">Громады</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col mb-4">
+                <div class="card text-center text-white bg-success">
+                    <img src="~/images/unlock.png" class="card-img" />
+                    <div class="card-img-overlay">
+                        <a class="card-text" asp-action="Precinct" asp-controller="Config" asp-area="Election">Районы</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,24 @@
+﻿@model IEnumerable<Phoenix.Web.Models.Report.PersonStateViewModel>
+
+@{
+    ViewData["Title"] = "Звіт щодо анкет";
+}
+
+<h1>Звіт щодо анкет</h1>
+<hr />
+<form id="formPersonStateFilter" asp-action="PersonState" asp-controller="Report" asp-area="Party" method="get">
+    <div class="form-inline">
+        @Html.DropDownList("areaId", new SelectList(ViewBag.Areas, "Value", "Text"), "--- всі області ---", new { @class = "form-control", onchange = "this.form.submit()" })
+        @Html.DropDownList("regionId", new SelectList(ViewBag.Regions, "Value", "Text"), "--- всі райони ---", new { @class = "form-control", onchange = "this.form.submit()" })
+        @Html.DropDownList("communityId", new SelectList(ViewBag.Communities, "Value", "Text"), "--- всі громади ---", new { @class = "form-control", onchange = "this.form.submit()" })
+    </div>
+</form>
+<table class="table table-sm table-borderless table-hover">
+    @foreach (var item in Model)
+    {
+        <tr style="@item.Style">
+            <td style="@item.Style">@item.Name</td>
+            <td class="text-right">@item.Count</td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,77 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Онлайн - Результаты выборов</title>
+    <link rel="stylesheet" href="~/css/online-result.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        function RefreshCircle() {
+            var val = $('#processed-protocols').data('percent');
+            var circle = $('#protocols #protocols-percent');
+
+            if (isNaN(val)) {
+                val = 0;
+            }
+            else {
+                var r = circle.attr('r');
+                var c = Math.PI * (r * 2);
+
+                if (val < 0) { val = 0; }
+                if (val > 100) { val = 100; }
+
+                var pct = ((0 - val) / 100) * c;
+
+                circle.css({ strokeDashoffset: pct });
+                //$('#processed-protocols').attr('data-percent', val);
+            }
+        }
+        function updateOnlineElectionResult(councilId) {
+            if (undefined == councilId) councilId = "";
+            $.get('@Url.Action("UpdateElectionResult","Online", new { councilId = "_id_" })'.replace("_id_",councilId), function (content) {
+                $('#dynamicOnlineElectionResult').html(content);
+                RefreshCircle();
+            });
+        }
+    </script>
+</head>
+<body>
+    <p class="text-center">
+        <a href="/">Вернуться на главную страницу</a>
+    </p>
+    <div class="row justify-content-md-center text-center">
+        <div class="col-6">
+            @Html.DropDownList("councils", new SelectList(ViewBag.councils, "Value", "Text"), new { @class = "form-control" })
+        </div>
+    </div>
+    <div id="dynamicOnlineElectionResult"></div>
+
+    <script>
+        //const hubConnection = new signalR.HubConnectionBuilder()
+        //    .withUrl("/signalr/election")
+        //.build();
+
+        //hubConnection.on('ReceiveOnlineProtocol', function () {
+        //    updateOnlineElectionResult($('#councils').val());
+        //});
+
+        $('#councils').on('change', function () {
+            updateOnlineElectionResult($(this).val());
+        });
+
+        //hubConnection.start();
+
+        updateOnlineElectionResult($('#councils').val());
+    </script>
+</body>
+</html>

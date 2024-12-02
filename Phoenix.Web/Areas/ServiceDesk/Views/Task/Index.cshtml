@@ -1,0 +1,376 @@
+﻿@model Phoenix.Web.Areas.ServiceDesk.Models.TaskListViewModel
+
+@{
+    ViewData["Title"] = "Завдання";
+}
+<div class="row d-flex mb-3">
+    <button id="btnNewTask" class="btn btn-dark" type="button" data-toggle="modal" data-target="#taskCreateModal" data-event-type="new">Створити &#10010</button>
+    <h2 class="ml-auto"><span class="badge badge-pill badge-warning">?</span></h2>
+</div>
+<div class="accordion" id="accordionTasks">
+    <div class="card">
+        <div class="card-header bg-danger" id="headingCreated">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseCreated" aria-expanded="false" aria-controls="collapseCreated">
+                    Створені <span class="badge badge-light">@Model.Created.Count</span>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseCreated" class="collapse" aria-labelledby="headingCreated" data-parent="#accordionTasks">
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark text-center">
+                        <tr>
+                            <th>№</th>
+                            <th>Дата створення</th>
+                            <th>Автор</th>
+                            <th>Текст завдання</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Created)
+                        {
+                            <tr>
+                                <td>@item.Number</td>
+                                <td>@Html.DateTimeNull(item.CreateDate)</td>
+                                <td>@item.OwnerName</td>
+                                <td>@item.RequestText</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm d-flex" role="group">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#taskCreateModal" data-event-type="edit" data-task-id="@item.Id">Редагувати</button>
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskCreateModal" data-event-type="send" data-task-id="@item.Id">Відправити</button>
+                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#taskCreateModal" data-event-type="delete" data-task-id="@item.Id">Видалити</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-warning" id="headingSended">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseSended" aria-expanded="false" aria-controls="collapseSended">
+                    Відправлені <span class="badge badge-light">@Model.Sended.Count</span>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseSended" class="collapse" aria-labelledby="headingSended" data-parent="#accordionTasks">
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead class="thead-dark text-center">
+                        <tr>
+                            <th>№</th>
+                            <th>Дата створення</th>
+                            <th>Дата відправки</th>
+                            <th>Автор</th>
+                            <th>Текст завдання</th>
+                            @if (Model.IsServiceDeskRole)
+                            {
+                                <th></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Sended)
+                        {
+                        <tr>
+                            <td>@item.Number</td>
+                            <td>@Html.DateTimeNull(item.CreateDate)</td>
+                            <td>@Html.DateTimeNull(item.SendDate)</td>
+                            <td>@item.OwnerName</td>
+                            <td>@item.RequestText</td>
+                            @if (Model.IsServiceDeskRole)
+                            {
+                        <td>
+                            <div class="btn-group btn-group-sm d-flex" role="group">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#taskAcceptModal" data-event-type="accept" data-task-id="@item.Id">Прийняти</button>
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#taskAcceptModal" data-event-type="decline" data-task-id="@item.Id">Відхилити</button>
+                            </div>
+                        </td>
+                            }
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-info" id="headingInWork">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseInWork" aria-expanded="false" aria-controls="collapseInWork">
+                    В роботі <span class="badge badge-light">@Model.InWork.Count</span>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseInWork" class="collapse" aria-labelledby="headingInWork" data-parent="#accordionTasks">
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Відправлено</th>
+                            <th>В роботі</th>
+                            <th>Автор</th>
+                            <th>Виконавець</th>
+                            <th>Текст завдання</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.InWork)
+                        {
+                        <tr>
+                            <td>@item.Number</td>
+                            <td>@Html.DateTimeNull(item.SendDate)</td>
+                            <td>@Html.DateTimeNull(item.AcceptDate)</td>
+                            <td>@item.OwnerName</td>
+                            <td>@item.PerformerName</td>
+                            <td>@item.RequestText</td>
+                            <td></td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary" id="headingCompleted">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseCompleted" aria-expanded="false" aria-controls="collapseCompleted">
+                    Виконані <span class="badge badge-light">@Model.Completed.Count</span>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseCompleted" class="collapse" aria-labelledby="headingCompleted" data-parent="#accordionTasks">
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Дата відправки</th>
+                            <th>Дата виконання</th>
+                            <th>Автор</th>
+                            <th>Виконавець</th>
+                            <th>Текст завдання</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Completed)
+                        {
+                        <tr>
+                            <td>@item.Number</td>
+                            <td>@Html.DateTimeNull(item.SendDate)</td>
+                            <td>@Html.DateTimeNull(item.DoneDate)</td>
+                            <td>@item.OwnerName</td>
+                            <td>@item.PerformerName</td>
+                            <td>@item.RequestText</td>
+                            <td></td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success" id="headingConfirmed">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseConfirmed" aria-expanded="false" aria-controls="collapseConfirmed">
+                    Завершені <span class="badge badge-light">@Model.Confirmed.Count</span>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseConfirmed" class="collapse" aria-labelledby="headingConfirmed" data-parent="#accordionTasks">
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Дата відправки</th>
+                            <th>Дата завершення</th>
+                            <th>Автор</th>
+                            <th>Виконавець</th>
+                            <th>Текст завдання</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Completed)
+                        {
+                        <tr>
+                            <td>@item.Number</td>
+                            <td>@Html.DateTimeNull(item.SendDate)</td>
+                            <td>@Html.DateTimeNull(item.ConfirmDate)</td>
+                            <td>@item.OwnerName</td>
+                            <td>@item.PerformerName</td>
+                            <td>@item.RequestText</td>
+                            <td></td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="taskCreateModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Завдання</h3>
+            </div>
+            <div class="modal-body">
+                <input id="taskId" type="hidden" value="" />
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Номер</span>
+                    </div>
+                    <input id="taskNumber" type="text" class="form-control" disabled="disabled" />
+                    <input id="taskDate" type="datetime-local" class="form-control" disabled="disabled" />
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Текст</span>
+                    </div>
+                    <textarea id="taskText" class="form-control" placeholder="Введить тест завдання"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger flex-fill" data-dismiss="modal">Відмінити</button>
+                <button id="btnAcceptAction" type="button" class="btn btn-success flex-fill">Створити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="taskAcceptModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Підтвердження операції</h5>
+            </div>
+            <div class="modal-body">
+                <input id="taskAcceptId" type="hidden" value="" />
+                <input id="taskAcceptType" type="hidden" value="" />
+                <div class="text-center">
+                    <h1></h1>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnTaskAccept" type="button" class="btn btn-success flex-fill">Так</button>
+                <button type="button" class="btn btn-danger flex-fill">Ні</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $('#taskAcceptModal').on('show.bs.modal', function (event) {
+            var acceptType = $(event.relatedTarget).data('event-type');
+            if (acceptType === "accept") {
+                $(this).find('div.modal-header > h5').text("Ви дійсно бажаєте прийняти завдання?");
+            } else if (acceptType == "decline") {
+                $(this).find('div.modal-header > h5').text("Ви дійсно бажаєте відхилити завдання?");
+            }
+            $('#taskAcceptType').val(acceptType);
+            $('#taskAcceptId').val($(event.relatedTarget).data('task-id'));
+        });
+
+        $('#btnTaskAccept').on('click', function (event) {
+            $.ajax({
+                url: '@Url.Action("AcceptTask")',
+                data: { taskId: $('#taskAcceptId').val(), actionType: $('#taskAcceptType').val() },
+                type: 'POST',
+                //contentType: 'application/json; charset=utf-8',
+                //dataType: 'json',
+                error: function (e) { },
+                success: function (data) {
+                    window.location = '@Url.Action("Index", "Task")';
+                }
+            });
+        });
+
+        $('#taskCreateModal').on('show.bs.modal', function (event) {
+            var eventType = $(event.relatedTarget).data('event-type');
+            var taskId = $(event.relatedTarget).data('task-id');
+
+            if (undefined != taskId) {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetTask")',
+                    data: { id: taskId },
+                    async: true,
+                    success: function (data) {
+                        $('#taskId').val(taskId);
+                        $('#taskNumber').val(data.number);
+                        $('#taskDate').val(data.createDate);
+                        $('#taskText').val(data.requestText);
+                    }
+                });
+            }
+
+            $('#btnAcceptAction').attr('data-event-type', eventType);
+            switch (eventType) {
+                case 'new':
+                    $(this).find('div.modal-header > h3').text("Нове завдання");
+                    $('#btnAcceptAction').text("Створити");
+                    break;
+                case 'edit':
+                    $(this).find('div.modal-header > h3').text("Редагування завдання");
+                    $('#btnAcceptAction').text("Зберегти");
+                    break;
+                case 'send':
+                    $(this).find('div.modal-header > h3').text("Відправлення завдання");
+                    $('#btnAcceptAction').text("Відправити");
+                    break;
+                case 'delete':
+                    $(this).find('div.modal-header > h3').text("Видалення завдання");
+                    $('#btnAcceptAction').text("Видалити");
+                    break;
+                default:
+            }
+        });
+
+        $('#taskCreateModal').on('hide.bs.modal', function (event) {
+
+        });
+
+        $('#btnAcceptAction').on('click', function (event) {
+            var task = new Object();
+            task.ID = $('#taskId').val();
+            task.Type = $(this).data('event-type');
+            task.RequestText = $('#taskText').val();
+
+            $.ajax({
+                url: '@Url.Action("EditTask")',
+                data: JSON.stringify(task),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (e) { },
+                success: function (data) {
+                    window.location = '@Url.Action("Index", "Task")';
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,43 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Онлайн - Явка</title>
+    <link rel="stylesheet" href="~/css/online.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+</head>
+<body>
+    <p class="text-center">
+        <a href="/">Вернуться на главную страницу</a>
+    </p>
+    <div id="dynamicOnlineTurnout"></div>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/signalr/election")
+            .build();
+
+        function updateOnlineTurnout() {
+            $.get('@Url.Action("TurnoutUpdate","Online")', function (content) {
+                $('#dynamicOnlineTurnout').html(content);
+            });
+        }
+
+        hubConnection.on('ReceiveOnlineTurnout', function () {
+            updateOnlineTurnout();
+        });
+
+        updateOnlineTurnout();
+
+        hubConnection.start();
+    </script>
+</body>
+</html>
